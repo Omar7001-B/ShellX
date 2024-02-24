@@ -27,10 +27,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             commands = new Dictionary<string, Command>
             {
                 {"help", new Command { Help = "Provides Help information for commands.", Action = Help }},
+                {"cls", new Command { Help = "Clear the screen.", Action = Cls }},
+                {"quit", new Command { Help = "Quit the shell.", Action = Quit }},
                 {"cd", new Command { Help = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
-                {"cls", new Command { Help = "Clear the screen.", Action = null }},
                 {"dir", new Command { Help = "List the contents of directory .", Action = null }},
-                {"quit", new Command { Help = "Quit the shell.", Action = null }},
                 {"copy", new Command { Help = "Copies one or more files to another location", Action = null }},
                 {"del", new Command { Help = "Deletes one or more files.", Action = null }},
                 {"md", new Command { Help = "Creates a directory.", Action = null }},
@@ -67,17 +67,18 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
 
 
-       private void ExecuteCommand(string command, string[] arguments)
-       {
-          if (commands.TryGetValue(command, out var commandInfo))
-          {
-              commandInfo.Action(arguments);
-          }
-          else
-          {
-              Console.WriteLine($"Command '{command}' not recognized.");
-          }
-       }
+        private void ExecuteCommand(string command, string[] arguments)
+        {
+            if (commands.TryGetValue(command, out var commandInfo))
+            {
+                if (commandInfo.Action != null) commandInfo.Action(arguments);
+                else Console.WriteLine($"Command '{command}' is not implemented yet.");
+            }
+            else
+            {
+                Console.WriteLine($"Command '{command}' not recognized.");
+            }
+        }
 
 
         private void Help(string[] args)
@@ -99,9 +100,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine("Available commands:");
                 foreach (var entry in commands)
                 {
-                    Console.WriteLine($"{entry.Key} - {entry.Value.Help}");
+                    Console.WriteLine($"{entry.Key} - {entry.Value.Help}\n");
                 }
             }
+        }
+
+        private void Cls(string[] args)
+        {
+            Console.Clear();
+        }
+
+        private void Quit(string[] args)
+        {
+            Environment.Exit(0);
         }
 
     }
