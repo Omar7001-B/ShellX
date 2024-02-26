@@ -11,7 +11,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         private string currentDirectory;
         public FileSystem()
         {
-            currentDirectory = "C:\\";
+            currentDirectory = "root:\\";
         }
 
         public string GetCurrenDirectory()

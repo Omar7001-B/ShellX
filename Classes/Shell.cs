@@ -29,6 +29,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"help", new Command { Help = "Provides Help information for commands.", Action = Help }},
                 {"cls", new Command { Help = "Clear the screen.", Action = Cls }},
                 {"quit", new Command { Help = "Quit the shell.", Action = Quit }},
+
                 {"cd", new Command { Help = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
                 {"dir", new Command { Help = "List the contents of directory .", Action = null }},
                 {"copy", new Command { Help = "Copies one or more files to another location", Action = null }},
@@ -41,9 +42,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"export", new Command { Help = "Export text file(s) to your computer", Action = null }},
             };
         }
-    
 
-       public void Run()
+        public void Run()
         {
             while (true)
             {
@@ -65,8 +65,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return (command, arguments);
         }
 
-
-
         private void ExecuteCommand(string command, string[] arguments)
         {
             if (commands.TryGetValue(command, out var commandInfo))
@@ -74,12 +72,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (commandInfo.Action != null) commandInfo.Action(arguments);
                 else Console.WriteLine($"Command '{command}' is not implemented yet.");
             }
-            else
+            else if(!string.IsNullOrEmpty(command))
             {
                 Console.WriteLine($"Command '{command}' not recognized.");
             }
         }
-
 
         private void Help(string[] args)
         {
@@ -114,7 +111,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             Environment.Exit(0);
         }
-
     }
 
 }
@@ -135,4 +131,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
     type - Displays the contents of a text file.
     import – import text file(s) from your computer
     export – export text file(s) to your computer
+
+
+Notes: 
+- toLower (Sensitve Case)
+- Isolate the exceution 
+- Formating
+- Ask about Options
+- Make help take multiple argueements
+- Validate the arguemnts inside the functions
+- -10
  */
