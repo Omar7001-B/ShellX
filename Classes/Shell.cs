@@ -8,7 +8,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 {
     public class Command
     {
-        public string Help { get; set; }
+        public string Description  { get; set; }
         public Action<string[]> Action { get; set; }
     }
 
@@ -26,20 +26,20 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             fileSystem = new FileSystem();
             commands = new Dictionary<string, Command>
             {
-                {"help", new Command { Help = "Provides Help information for commands.", Action = Help }},
-                {"cls", new Command { Help = "Clear the screen.", Action = Cls }},
-                {"quit", new Command { Help = "Quit the shell.", Action = Quit }},
+                {"help", new Command { Description  = "Provides Help information for commands.", Action = Help }},
+                {"cls", new Command { Description  = "Clear the screen.", Action = Executions.Cls }},
+                {"quit", new Command { Description  = "Quit the shell.", Action = Executions.Quit }},
 
-                {"cd", new Command { Help = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
-                {"dir", new Command { Help = "List the contents of directory .", Action = null }},
-                {"copy", new Command { Help = "Copies one or more files to another location", Action = null }},
-                {"del", new Command { Help = "Deletes one or more files.", Action = null }},
-                {"md", new Command { Help = "Creates a directory.", Action = null }},
-                {"rd", new Command { Help = "Removes a directory.", Action = null }},
-                {"rename", new Command { Help = "Renames a file.", Action = null }},
-                {"type", new Command { Help = "Displays the contents of a text file.", Action = null }},
-                {"import", new Command { Help = "Import text file(s) from your computer", Action = null }},
-                {"export", new Command { Help = "Export text file(s) to your computer", Action = null }},
+                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
+                {"dir", new Command { Description  = "List the contents of directory .", Action = null }},
+                {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
+                {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
+                {"md", new Command { Description  = "Creates a directory.", Action = null }},
+                {"rd", new Command { Description  = "Removes a directory.", Action = null }},
+                {"rename", new Command { Description  = "Renames a file.", Action = null }},
+                {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
+                {"import", new Command { Description  = "Import text file(s) from your computer", Action = null }},
+                {"export", new Command { Description  = "Export text file(s) to your computer", Action = null }},
             };
         }
 
@@ -77,15 +77,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine($"Command '{command}' not recognized.");
             }
         }
-
-        private void Help(string[] args)
+        public void Help(string[] args)
         {
             if (args.Length == 1)
             {
                 string command = args[0].ToLower();
                 if (commands.TryGetValue(command, out var commandInfo))
                 {
-                    Console.WriteLine($"{command} - {commandInfo.Help}");
+                    Console.WriteLine($"{command,-10} - {commandInfo.Description}");
                 }
                 else
                 {
@@ -97,19 +96,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine("Available commands:");
                 foreach (var entry in commands)
                 {
-                    Console.WriteLine($"{entry.Key} - {entry.Value.Help}\n");
+                    Console.WriteLine($"{entry.Key,-10} - {entry.Value.Description}\n");
                 }
             }
-        }
-
-        private void Cls(string[] args)
-        {
-            Console.Clear();
-        }
-
-        private void Quit(string[] args)
-        {
-            Environment.Exit(0);
         }
     }
 
