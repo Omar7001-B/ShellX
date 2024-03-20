@@ -49,7 +49,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             return new DirectoryEntry
             {
-                Filename = Encoding.ASCII.GetString(data, 0, 11),
+                Filename = Encoding.ASCII.GetString(data, 0, 11).Trim(),
                 FileAttribute = data[11],
                 FirstCluster = BitConverter.ToInt32(data, 24),
                 FileSize = BitConverter.ToInt32(data, 28)
