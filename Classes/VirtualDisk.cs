@@ -17,19 +17,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 using (FileStream fs = new FileStream(DiskFileName, FileMode.CreateNew))
                 {
                     byte[] superBlock = new byte[1024];
-                    byte[] asteriskBlock = new byte[4 * 1024];
-                    byte[] hashBlock = new byte[1019 * 1024];
+                    byte[] fatTableBlock = new byte[4 * 1024];
+                    byte[] storageBlock = new byte[1019 * 1024];
 
                     Array.Fill(superBlock, (byte)'0');
-                    Array.Fill(asteriskBlock, (byte)'*');
-                    Array.Fill(hashBlock, (byte)'#');
+                    Array.Fill(fatTableBlock, (byte)'*');
+                    Array.Fill(storageBlock, (byte)'#');
 
                     fs.Write(superBlock, 0, superBlock.Length);
-                    fs.Write(asteriskBlock, 0, asteriskBlock.Length);
-                    fs.Write(hashBlock, 0, hashBlock.Length);
+                    fs.Write(fatTableBlock, 0, fatTableBlock.Length);
+                    fs.Write(storageBlock, 0, storageBlock.Length);
                 }
 
-                FatTable.Initialize();
+                FatTable.Initialize(); // int fat[1024]
                 FatTable.writeFatTable();
             }
             else
