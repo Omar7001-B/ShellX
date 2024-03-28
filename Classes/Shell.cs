@@ -38,6 +38,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public static void Run()
         {
+            VirtualDisk.Initialize();
             while (true)
             {
                 Console.Write($"{fileSystem.GetCurrenDirectory()}> ");
