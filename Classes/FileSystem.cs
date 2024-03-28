@@ -6,17 +6,26 @@ using System.Threading.Tasks;
 
 namespace Simple_Shell_And_File_System__FAT_.Classes
 {
-    internal class FileSystem
+    public class FileSystem
     {
-        private string currentDirectory;
+        public Directory CurrentDirectory { get; set; }
+
         public FileSystem()
         {
-            currentDirectory = "root:\\";
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            // Initialize the root directory
+            CurrentDirectory = new Directory("root", 1, 0, 0, null);
+            CurrentDirectory.WriteDirectory();
         }
 
         public string GetCurrenDirectory()
         {
-            return currentDirectory;
-        }
+			return CurrentDirectory.Filename;
+		}
     }
+
 }

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Simple_Shell_And_File_System__FAT_.Classes
 {
-	internal class DirectoryEntry
+	public class DirectoryEntry
 	{
 		public string Filename { get; set; } = ""; // 11 bytes
         public byte FileAttribute { get; set; } // 1 byte

@@ -12,38 +12,31 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public Action<string[]> Action { get; set; }
     }
 
-    internal class Shell
+    public class Shell
     {
-        public FileSystem fileSystem;
-        public Dictionary<string, Command> commands;
-
-        public Shell()
+        public static FileSystem fileSystem = new FileSystem();
+        public static Dictionary<string, Command> commands = new Dictionary<string, Command>
         {
-            Initialize();
-        }
-        private void Initialize()
-        {
-            fileSystem = new FileSystem();
-            commands = new Dictionary<string, Command>
-            {
                 {"help", new Command { Description  = "Provides Help information for commands.", Action = Help }},
-                {"cls", new Command { Description  = "Clear the screen.", Action = Executions.Cls }},
-                {"quit", new Command { Description  = "Quit the shell.", Action = Executions.Quit }},
+                {"cls", new Command { Description  = "Clear the screen.", Action = Cls }},
+                {"quit", new Command { Description  = "Quit the shell.", Action = Quit }},
 
                 {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
-                {"dir", new Command { Description  = "List the contents of directory .", Action = null }},
+                {"dir", new Command { Description  = "List the contents of directory .", Action = ListDirectoryContents }},
                 {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
-                {"md", new Command { Description  = "Creates a directory.", Action = null }},
-                {"rd", new Command { Description  = "Removes a directory.", Action = null }},
+                {"md", new Command { Description  = "Creates a directory.", Action = MakeDirectory }},
+                {"rd", new Command { Description  = "Removes a directory.", Action = RemoveDirectory }},
                 {"rename", new Command { Description  = "Renames a file.", Action = null }},
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
                 {"import", new Command { Description  = "Import text file(s) from your computer", Action = null }},
                 {"export", new Command { Description  = "Export text file(s) to your computer", Action = null }},
             };
-        }
 
-        public void Run()
+
+        public Shell() { }
+
+        public static void Run()
         {
             while (true)
             {
@@ -55,7 +48,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
         }
 
-        private (string Command, string[] Arguments) ParseInput(string input)
+        private static (string Command, string[] Arguments) ParseInput(string input)
         {
             string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -65,7 +58,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return (command, arguments);
         }
 
-        private void ExecuteCommand(string command, string[] arguments)
+        private static void ExecuteCommand(string command, string[] arguments)
         {
             if (commands.TryGetValue(command, out var commandInfo))
             {
@@ -77,7 +70,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine($"Command '{command}' not recognized.");
             }
         }
-        public void Help(string[] args)
+        public static void Help(string[] args)
         {
             if (args.Length == 1)
             {
@@ -100,6 +93,98 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 }
             }
         }
+
+
+        public static void Cls(string[] args)
+        {
+            Console.Clear();
+        }
+
+        public static void Quit(string[] args)
+        {
+            Environment.Exit(0);
+        }
+
+
+        public static void MakeDirectory(string[] args)
+        {
+
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Usage: md <name>");
+                return;
+            }
+
+            string name = args[0];
+
+            if (fileSystem.CurrentDirectory.Search(name) != -1)
+            {
+                Console.WriteLine($"Directory '{name}' already exists.");
+                return;
+            }
+
+            Directory newDir = new Directory(name, 1, 0, 0, fileSystem.CurrentDirectory);
+
+            fileSystem.CurrentDirectory.DirectoryTable.Add(newDir);
+
+            fileSystem.CurrentDirectory.WriteDirectory();
+
+            Console.WriteLine($"Directory '{name}' created successfully.");
+        }
+        public static void ListDirectoryContents(string[] args)
+        {
+            if (fileSystem == null)
+            {
+                Console.WriteLine("File system not initialized.");
+                return;
+            }
+
+            Console.WriteLine("Directory Contents:");
+            foreach (var entry in fileSystem.CurrentDirectory.DirectoryTable)
+            {
+                Console.WriteLine(entry.Filename);
+            }
+        }
+        public static void RemoveDirectory(string[] args)
+        {
+            if (fileSystem == null)
+            {
+                Console.WriteLine("File system not initialized.");
+                return;
+            }
+
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Usage: rd <name>");
+                return;
+            }
+
+            string name = args[0];
+
+            int index = fileSystem.CurrentDirectory.Search(name);
+            if (index == -1)
+            {
+                Console.WriteLine($"Directory '{name}' not found.");
+                return;
+            }
+
+            DirectoryEntry entry = fileSystem.CurrentDirectory.DirectoryTable[index];
+            if (entry is Directory directory)
+            {
+                fileSystem.CurrentDirectory.DirectoryTable.RemoveAt(index);
+                fileSystem.CurrentDirectory.WriteDirectory();
+                directory.DeleteDirectory();
+                Console.WriteLine($"Directory '{name}' deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"'{name}' is not a directory.");
+            }
+        }
+
+
+
+
     }
 
 }
