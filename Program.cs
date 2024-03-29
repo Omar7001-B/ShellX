@@ -9,7 +9,11 @@ namespace Simple_Shell_And_File_System__FAT_
         static void Main(string[] args)
         {
            // FunctionalityTests.TestDirectory();
-           Shell.Run();
+           VirtualDisk.Initialize();
+           FunctionalityTests.TestingDirectoryAgain();
+
+
+           //Shell.Run();
         }
     }
 }

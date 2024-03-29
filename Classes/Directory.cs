@@ -24,23 +24,31 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 directoryBytes.AddRange(entry.ToByteArray());
 
             int totalBytes = directoryBytes.Count;
-            int totalBlocks = (totalBytes / 1024) + 1;
+            int totalBlocks = ((totalBytes + 1023) / 1024);
 
-            int firstCluster = FirstCluster != 0 ? FirstCluster : FatTable.getAvailableBlock();
 
-            int currentCluster = firstCluster;
-            int nextCluster;
+            if(this.FirstCluster == 0)
+				this.FirstCluster = FatTable.getAvailableBlock();
+
+            int previousCluster = 0;
+
+            byte[] EmptyBlock = new byte[1024];
+            Array.Fill(EmptyBlock, (byte)'#');
 
             for (int i = 0; i < totalBlocks; i++)
             {
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
-                VirtualDisk.writeBlock(blockData, currentCluster);
 
-                nextCluster = (i < totalBlocks - 1) ? FatTable.getAvailableBlock() : -1;
-                FatTable.setValue(nextCluster, currentCluster);
+                int nextCluster = FatTable.getAvailableBlock();
+                VirtualDisk.writeBlock(EmptyBlock, nextCluster);
+                VirtualDisk.writeBlock(blockData, nextCluster);
 
-                currentCluster = nextCluster;
+
+                FatTable.setValue(nextCluster, -1);
+                if(previousCluster != 0)
+					FatTable.setValue(previousCluster, nextCluster);
+                previousCluster = nextCluster;
             }
 
             FatTable.writeFatTable();
@@ -50,8 +58,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             List<byte> directoryBytes = new List<byte>();
 
-            int firstCluster = FirstCluster;
-            int currentCluster = firstCluster;
+            int currentCluster = this.FirstCluster;
 
             while (currentCluster != -1)
             {
@@ -65,10 +72,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             for (int i = 0; i < entryCount; i++)
             {
                 byte[] entryData = directoryBytes.Skip(i * 32).Take(32).ToArray();
-                DirectoryEntry entry = new DirectoryEntry();
-                entry = entry.FromByteArray(entryData);
-                DirectoryTable.Add(entry);
+                DirectoryTable.Add(new DirectoryEntry(entryData));
             }
+
+            // Remove empty entries
+            DirectoryTable.RemoveAll(entry => entry.Filename == "###########");
         }
 
         public void DeleteDirectory()
@@ -85,7 +93,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             while (currentIndex != -1)
             {
                 nextIndex = FatTable.getValue(currentIndex);
-                FatTable.setValue(0, currentIndex);
+                FatTable.setValue(currentIndex, 0);
                 currentIndex = nextIndex;
             }
 
@@ -96,8 +104,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {
                     Parent.DirectoryTable.RemoveAt(index);
                     Parent.WriteDirectory();
+					FatTable.writeFatTable();
                 }
-                FatTable.writeFatTable();
             }
 
             Console.WriteLine("Directory deleted.");
@@ -110,6 +118,22 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (DirectoryTable[i].Filename == name) return i;
             return -1;
         }
+
+
+        public void PrintDirectoryContents() // For testing purposes
+        {
+            // Print Number of files in the directory
+			Console.WriteLine($"Directory: {new string(Filename)}");
+            Console.WriteLine($"Number of Files: {DirectoryTable.Count}");
+			foreach (DirectoryEntry entry in DirectoryTable)
+            {
+				Console.WriteLine($"Filename: {new string(entry.Filename)}");
+				Console.WriteLine($"File Attribute: {entry.FileAttribute}");
+				Console.WriteLine($"First Cluster: {entry.FirstCluster}");
+				Console.WriteLine($"File Size: {entry.FileSize}");
+				Console.WriteLine();
+			}
+		}
     }
 
 }

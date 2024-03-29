@@ -64,7 +64,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return fat[index];
         }
 
-        public static void setValue(int value, int index)
+        public static void setValue(int index, int value)
         {
             fat[index] = value;
         }

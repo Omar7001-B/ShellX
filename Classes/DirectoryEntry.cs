@@ -25,8 +25,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public DirectoryEntry(string name, byte attribute, int cluster, int size)
         {
-            if (attribute == 0)
-                Filename = name.Length > 11 ? name.Substring(0, 7) + name.Substring(name.Length - 4) : name.PadRight(11).Substring(0, 11);
+            if (attribute == 0 && name.Contains("."))
+            {
+                string[] parts = name.Split('.'); parts[1] = parts[1].Substring(0, Math.Min(3, parts[1].Length));
+				Filename = $"{parts[0].Substring(0, Math.Min(11 - parts[1].Length, parts[0].Length))}.{parts[1]}";
+            }
             else
                 Filename = name.Substring(0, Math.Min(11, name.Length));
             FileAttribute = attribute;
@@ -34,10 +37,21 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             FirstCluster = cluster == 0 ? FatTable.getAvailableBlock() : cluster;
         }
 
+        public DirectoryEntry(byte[] data)
+        {
+			DirectoryEntry entry = FromByteArray(data);
+            this.Filename = entry.Filename;
+            this.FileAttribute = entry.FileAttribute;
+            this.FirstCluster = entry.FirstCluster;
+            this.FileSize = entry.FileSize;
+		}
+
+
+
         public byte[] ToByteArray()
         {
             byte[] data = new byte[32];
-            Encoding.ASCII.GetBytes(Filename).CopyTo(data, 0);
+            Encoding.ASCII.GetBytes(Filename.PadRight(11)).CopyTo(data, 0);
             data[11] = FileAttribute;
             FileEmpty.CopyTo(data, 12);
             BitConverter.GetBytes(FirstCluster).CopyTo(data, 24);
