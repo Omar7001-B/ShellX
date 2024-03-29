@@ -37,6 +37,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             FirstCluster = cluster == 0 ? FatTable.getAvailableBlock() : cluster;
         }
 
+
         public DirectoryEntry(byte[] data)
         {
 			DirectoryEntry entry = FromByteArray(data);

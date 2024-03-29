@@ -14,14 +14,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
     public class Shell
     {
-        public static FileSystem fileSystem = new FileSystem();
+        public static FileSystem fileSystem;
         public static Dictionary<string, Command> commands = new Dictionary<string, Command>
         {
                 {"help", new Command { Description  = "Provides Help information for commands.", Action = Help }},
                 {"cls", new Command { Description  = "Clear the screen.", Action = Cls }},
                 {"quit", new Command { Description  = "Quit the shell.", Action = Quit }},
 
-                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = null }},
+                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = ChangeDirectory }},
                 {"dir", new Command { Description  = "List the contents of directory .", Action = ListDirectoryContents }},
                 {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
@@ -39,9 +39,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public static void Run()
         {
             VirtualDisk.Initialize();
+            fileSystem = new FileSystem();
             while (true)
             {
-                Console.Write($"{fileSystem.GetCurrenDirectory()}> ");
+                Console.Write($"{fileSystem.ShowCurrentPath()}> ");
                 string input = Console.ReadLine();
                 var (command, arguments) = ParseInput(input);
 
@@ -106,32 +107,40 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Environment.Exit(0);
         }
 
+        public static void ChangeDirectory(string[] args)
+        {
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Usage: cd <directory>");
+                return;
+            }
+
+            string targetDirectory = args[0];
+            if (targetDirectory == "..")
+            {
+                // Navigate to the parent directory
+                fileSystem.NavigateUp();
+            }
+            else
+            {
+                // Navigate to the specified directory
+                fileSystem.NavigateToFolder(targetDirectory);
+            }
+        }
+
+
 
         public static void MakeDirectory(string[] args)
         {
-
             if (args.Length != 1)
             {
                 Console.WriteLine("Usage: md <name>");
                 return;
             }
 
-            string name = args[0];
-
-            if (fileSystem.CurrentDirectory.Search(name) != -1)
-            {
-                Console.WriteLine($"Directory '{name}' already exists.");
-                return;
-            }
-
-            Directory newDir = new Directory(name, 1, 0, 0, fileSystem.CurrentDirectory);
-
-            fileSystem.CurrentDirectory.DirectoryTable.Add(newDir);
-
-            fileSystem.CurrentDirectory.WriteDirectory();
-
-            Console.WriteLine($"Directory '{name}' created successfully.");
+            fileSystem.AddFolder(args[0]);
         }
+
         public static void ListDirectoryContents(string[] args)
         {
             if (fileSystem == null)
@@ -143,7 +152,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine("Directory Contents:");
             foreach (var entry in fileSystem.CurrentDirectory.DirectoryTable)
             {
-                Console.WriteLine(entry.Filename);
+                Console.WriteLine($"{entry.Filename} {entry.FileSize} Byte");
+
+
             }
         }
         public static void RemoveDirectory(string[] args)

@@ -10,10 +10,21 @@ namespace Simple_Shell_And_File_System__FAT_
         {
            // FunctionalityTests.TestDirectory();
            VirtualDisk.Initialize();
-           FunctionalityTests.TestingDirectoryAgain();
+           //FunctionalityTests.TestingDirectoryAgain();
 
+            Directory parentEntry = new Directory("ParentDir", 0, 5, 0, null);
+            parentEntry.PrintDirectoryContents();
+            parentEntry.DirectoryTable.Add(new Directory("TestDir", 0, 0, 0, parentEntry));
 
-           //Shell.Run();
+            foreach (var entry in parentEntry.DirectoryTable)
+            {
+				Console.WriteLine(entry.Filename);
+                Console.WriteLine((entry is Directory ? "Directory" : "Not Directory"));
+			}
+
+            FatTable.printFatTable(0, 20);
+           
+            Shell.Run();
         }
     }
 }

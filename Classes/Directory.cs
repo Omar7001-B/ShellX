@@ -16,6 +16,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public Directory(string name, byte attribute, int cluster, int size, Directory parent) 
             : base(name, attribute, cluster, size) { Parent = parent; }
 
+        public Directory(DirectoryEntry entry, Directory parent = null)
+                : base(entry.Filename, entry.FileAttribute, entry.FirstCluster, entry.FileSize)
+        { Parent = parent; }
+
         public void WriteDirectory()
         {
             List<byte> directoryBytes = new List<byte>();
@@ -30,6 +34,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             if(this.FirstCluster == 0)
 				this.FirstCluster = FatTable.getAvailableBlock();
 
+            int nextCluster = this.FirstCluster;
             int previousCluster = 0;
 
             byte[] EmptyBlock = new byte[1024];
@@ -40,7 +45,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
 
-                int nextCluster = FatTable.getAvailableBlock();
+                nextCluster = (nextCluster == previousCluster ? FatTable.getAvailableBlock() : nextCluster);
                 VirtualDisk.writeBlock(EmptyBlock, nextCluster);
                 VirtualDisk.writeBlock(blockData, nextCluster);
 
@@ -72,12 +77,22 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             for (int i = 0; i < entryCount; i++)
             {
                 byte[] entryData = directoryBytes.Skip(i * 32).Take(32).ToArray();
-                DirectoryTable.Add(new DirectoryEntry(entryData));
+                DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
             }
 
             // Remove empty entries
-            DirectoryTable.RemoveAll(entry => entry.Filename == "###########");
+             DirectoryTable.RemoveAll(entry => entry.Filename == "###########");
         }
+
+        public DirectoryEntry GetActualType(DirectoryEntry entry)
+        {
+			if (entry.FileAttribute == 1)
+            {
+				Directory directory = new Directory(entry, this);
+				return directory;
+			}
+			return entry;
+		}
 
         public void DeleteDirectory()
         {
@@ -123,6 +138,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void PrintDirectoryContents() // For testing purposes
         {
             // Print Number of files in the directory
+            this.ReadDirectory();
 			Console.WriteLine($"Directory: {new string(Filename)}");
             Console.WriteLine($"Number of Files: {DirectoryTable.Count}");
 			foreach (DirectoryEntry entry in DirectoryTable)

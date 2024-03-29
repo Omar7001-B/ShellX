@@ -47,10 +47,17 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Buffer.BlockCopy(fatBytes, 0, fat, 0, fatBytes.Length);
         }
 
-        public static void printFatTable()
+        // Make fucntion to check if there is root block at fat[5]
+
+        public static bool isRootIntialized()
+        {
+			return fat[5] != 0;
+		}
+
+        public static void printFatTable(int start = 0, int end = 1024)
         {
             Console.WriteLine("FAT Table:");
-            for (int i = 0; i < NumberOfBlocks; i++)
+            for (int i = start; i < end; i++)
                 Console.WriteLine($"FAT[{i}] = {fat[i]}");
         }
 
