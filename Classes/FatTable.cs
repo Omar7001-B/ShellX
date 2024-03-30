@@ -68,11 +68,20 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public static int getValue(int index)
         {
+            if(index == fat[index])
+                Console.WriteLine($"Infinite loop detected at fat[{index}] = {fat[index]}");
+
             return fat[index];
         }
 
         public static void setValue(int index, int value)
         {
+            if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4)
+				Console.WriteLine("Cannot write to reserved block");
+
+            if(index == value)
+				Console.WriteLine("Cannot write to itself, this would lead to inf");
+
             fat[index] = value;
         }
 
