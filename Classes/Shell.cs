@@ -21,8 +21,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"cls", new Command { Description  = "Clear the screen.", Action = Cls }},
                 {"quit", new Command { Description  = "Quit the shell.", Action = Quit }},
 
-                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = Cd }},
-                {"dir", new Command { Description  = "List the contents of directory .", Action = Dir }},
+                {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
+                {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
                 {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
