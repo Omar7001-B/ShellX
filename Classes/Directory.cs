@@ -145,23 +145,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (DirectoryTable[i].Filename == name) return i;
             return -1;
         }
-
-
-        public void PrintDirectoryContents() // For testing purposes
-        {
-            // Print Number of files in the directory
-            this.ReadDirectory();
-			Console.WriteLine($"Directory: {new string(Filename)}");
-            Console.WriteLine($"Number of Files: {DirectoryTable.Count}");
-			foreach (DirectoryEntry entry in DirectoryTable)
-            {
-				Console.WriteLine($"Filename: {new string(entry.Filename)}");
-				Console.WriteLine($"File Attribute: {entry.FileAttribute}");
-				Console.WriteLine($"First Cluster: {entry.FirstCluster}");
-				Console.WriteLine($"File Size: {entry.FileSize}");
-				Console.WriteLine();
-			}
-		}
     }
 
 }

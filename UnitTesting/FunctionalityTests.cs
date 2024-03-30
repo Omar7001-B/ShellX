@@ -94,40 +94,5 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
                 Console.WriteLine("File not found.");
             }
         }
-        public static void TestingDirectoryAgain()
-        {
-            Directory parentEntry = new Directory("ParentDir", 0, 0, 0, null);
-
-            //for (int i = 0; i  < 50; i++)
-            {
-
-				DirectoryEntry entry1 = new DirectoryEntry("File1.tsssxtdssd", 0, 0, 1024);
-				DirectoryEntry entry2 = new DirectoryEntry("File2.txt", 0, 0, 2048);
-				DirectoryEntry entry3 = new DirectoryEntry("SubDir", 0, 0, 0);
-				parentEntry.DirectoryTable.Add(entry1);
-				parentEntry.DirectoryTable.Add(entry2);
-				parentEntry.DirectoryTable.Add(entry3);
-			}
-
-            Console.WriteLine("Printing Directory Contents:");
-            parentEntry.PrintDirectoryContents();
-            // Test the deletion of a directory entry
-            int index = parentEntry.Search("File1.txt");
-            if (index != -1)
-            {
-				parentEntry.DirectoryTable.RemoveAt(index);
-				parentEntry.WriteDirectory();
-			}
-
-            Console.WriteLine("Printing Directory Contents:");
-            parentEntry.PrintDirectoryContents();
-
-
-
-
-
-         
-
-        }
 	}
 }
