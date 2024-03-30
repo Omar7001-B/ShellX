@@ -8,7 +8,8 @@ namespace Simple_Shell_And_File_System__FAT_
     {
         static void Main(string[] args)
         {
-            VirtualDisk.Initialize();
+            VirtualDisk.Initialize(); // Already in Shell.Run()
+            //FatTable.printFatTable(0, 21);
             Shell.Run();
         }
     }

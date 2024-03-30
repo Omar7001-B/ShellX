@@ -21,16 +21,18 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"cls", new Command { Description  = "Clear the screen.", Action = Cls }},
                 {"quit", new Command { Description  = "Quit the shell.", Action = Quit }},
 
-                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = ChangeDirectory }},
-                {"dir", new Command { Description  = "List the contents of directory .", Action = ListDirectoryContents }},
+                {"cd", new Command { Description  = "Change the current default directory to . If the argument is not present, report the current directory. If the directory does not exist, an appropriate error should be reported.", Action = Cd }},
+                {"dir", new Command { Description  = "List the contents of directory .", Action = Dir }},
                 {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
-                {"md", new Command { Description  = "Creates a directory.", Action = MakeDirectory }},
-                {"rd", new Command { Description  = "Removes a directory.", Action = RemoveDirectory }},
+                {"md", new Command { Description  = "Creates a directory.", Action = Md }},
+                {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = null }},
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
                 {"import", new Command { Description  = "Import text file(s) from your computer", Action = null }},
                 {"export", new Command { Description  = "Export text file(s) to your computer", Action = null }},
+                // Debug
+                {"showfat", new Command { Description  = "Shows The Fat File System", Action = ShowFat }},
             };
 
 
@@ -40,6 +42,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             VirtualDisk.Initialize();
             fileSystem = new FileSystem();
+
+            /*
+            for(int i = 0; i < 80; i++)
+            {
+                string[] folder = new string[]{ $"Folder{i}" };
+                Md(folder);
+			}
+            */
 
             while (true)
             {
@@ -63,6 +73,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         private static void ExecuteCommand(string command, string[] arguments)
         {
+
+            if (fileSystem == null)
+            {
+                Console.WriteLine("File system not initialized.");
+                return;
+            }
+
             if (commands.TryGetValue(command, out var commandInfo))
             {
                 if (commandInfo.Action != null) commandInfo.Action(arguments);
@@ -102,7 +119,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Environment.Exit(0);
         }
 
-        public static void ChangeDirectory(string[] args)
+        public static void Cd(string[] args)
         {
             if (args.Length != 1)
             {
@@ -110,17 +127,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            string targetDirectory = args[0];
-            if (targetDirectory == "..")
-                fileSystem.NavigateUp();
-            else
-                fileSystem.NavigateToFolder(targetDirectory);
-            
+            if (args[0] == "..") fileSystem.NavigateUp();
+			else if (args[0] == "root") fileSystem.NavigateToRoot();
+			else fileSystem.NavigateToFolder(args[0]);
         }
 
 
 
-        public static void MakeDirectory(string[] args)
+        public static void Md(string[] args)
         {
             if (args.Length != 1)
             {
@@ -131,61 +145,28 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             fileSystem.AddFolder(args[0]);
         }
 
-        public static void ListDirectoryContents(string[] args)
+        public static void Dir(string[] args)
         {
-            if (fileSystem == null)
-            {
-                Console.WriteLine("File system not initialized.");
-                return;
-            }
-
-            Console.WriteLine("Directory Contents:");
-            foreach (var entry in fileSystem.CurrentDirectory.DirectoryTable)
-            {
-                Console.WriteLine($"{entry.Filename} {entry.FileSize} Byte");
-
-
-            }
+            fileSystem.ListDirectoryContents();
         }
-        public static void RemoveDirectory(string[] args)
+        public static void Rd(string[] args)
         {
-            if (fileSystem == null)
-            {
-                Console.WriteLine("File system not initialized.");
-                return;
-            }
-
             if (args.Length != 1)
             {
                 Console.WriteLine("Usage: rd <name>");
                 return;
             }
 
-            string name = args[0];
-
-            int index = fileSystem.CurrentDirectory.Search(name);
-            if (index == -1)
-            {
-                Console.WriteLine($"Directory '{name}' not found.");
-                return;
-            }
-
-            DirectoryEntry entry = fileSystem.CurrentDirectory.DirectoryTable[index];
-            if (entry is Directory directory)
-            {
-                fileSystem.CurrentDirectory.DirectoryTable.RemoveAt(index);
-                fileSystem.CurrentDirectory.WriteDirectory();
-                directory.DeleteDirectory();
-                Console.WriteLine($"Directory '{name}' deleted successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"'{name}' is not a directory.");
-            }
+            fileSystem.DeleteFolder(args[0]);
         }
 
 
 
+        // Debug Part
+        public static void ShowFat(string[] args)
+        {
+			FatTable.printFatTable(0, 21);
+		}
 
     }
 

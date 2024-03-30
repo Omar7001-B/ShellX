@@ -13,11 +13,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public FileSystem()
         {
             CurrentDirectory = new Directory("root", 1, 5, 1024, null);
-            if(!FatTable.isRootIntialized())
+            if (!FatTable.isRootIntialized())
             {
-				FatTable.setValue(CurrentDirectory.FirstCluster, -1);
-				FatTable.writeFatTable();
-			}
+                FatTable.setValue(CurrentDirectory.FirstCluster, -1);
+                FatTable.writeFatTable();
+            }
             else
             {
                 CurrentDirectory.ReadDirectory();
@@ -43,15 +43,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            // Create a new directory entry for the folder
             Directory newFolder = new Directory(folderName, 1, 0, 0, CurrentDirectory);
-
-            // Add the new directory entry to the current directory's table
             CurrentDirectory.DirectoryTable.Add(newFolder);
-
-            // Write the current directory to the virtual disk
             CurrentDirectory.WriteDirectory();
-
             Console.WriteLine($"Folder '{folderName}' created successfully.");
         }
 
@@ -72,6 +66,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             CurrentDirectory = folder;
+            CurrentDirectory.ReadDirectory();
             Console.WriteLine($"Navigated to folder '{folderName}'.");
         }
 
@@ -84,32 +79,49 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             CurrentDirectory = CurrentDirectory.Parent;
+            CurrentDirectory.ReadDirectory();
             Console.WriteLine("Navigated up to the parent directory.");
+        }
+
+        public void NavigateToRoot()
+        {
+            Directory temp = CurrentDirectory;
+            while (temp.Parent != null)
+                temp = temp.Parent;
+            CurrentDirectory = temp;
+            CurrentDirectory.ReadDirectory();
+            Console.WriteLine("Navigated to the root directory.");
         }
 
         public void DeleteFolder(string folderName)
         {
-            if (string.IsNullOrWhiteSpace(folderName))
+            string name = folderName;
+
+            if(name == ".." || name == "root")
             {
-                Console.WriteLine("Folder name cannot be empty.");
-                return;
-            }
+				Console.WriteLine("Access is denied.");
+				return;
+			}
 
-            int index = CurrentDirectory.Search(folderName);
-
+            int index = CurrentDirectory.Search(name);
             if (index == -1)
             {
-                Console.WriteLine($"Folder '{folderName}' not found.");
+                Console.WriteLine($"Directory '{name}' not found.");
                 return;
             }
 
-            if (!(CurrentDirectory.DirectoryTable[index] is Directory folder))
+            DirectoryEntry entry = CurrentDirectory.DirectoryTable[index];
+            if (entry is Directory directory)
             {
-                Console.WriteLine($"'{folderName}' is not a folder.");
-                return;
+                CurrentDirectory.DirectoryTable.RemoveAt(index);
+                CurrentDirectory.WriteDirectory();
+                directory.DeleteDirectory();
+                Console.WriteLine($"Directory '{name}' deleted successfully.");
             }
-
-            folder.DeleteDirectory();
+            else
+            {
+                Console.WriteLine($"'{name}' is not a directory.");
+            }
         }
 
         public string ShowCurrentPath()
@@ -128,6 +140,32 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return path.ToString();
         }
 
+        public void ListDirectoryContents()
+        {
+            int numFiles = 0;
+            int numDirs = 0;
+            int usedSpace = 0;
+
+            Console.WriteLine($"\n Directory of {ShowCurrentPath()}:\n");
+
+            if(CurrentDirectory.Parent != null)
+				Console.WriteLine($"<DIR>             ..");
+
+            foreach (var entry in CurrentDirectory.DirectoryTable)
+            {
+                string type = (entry.FileAttribute == 1) ? "<DIR>" : "";
+                string fileSize = (entry.FileAttribute == 1) ? "" : $"{entry.FileSize}B";
+                Console.WriteLine($"{type,-6} {fileSize,-10} {entry.Filename}");
+                numFiles += (entry.FileAttribute == 0) ? 1 : 0;
+                numDirs += (entry.FileAttribute == 1) ? 1 : 0;
+                usedSpace += entry.FileSize;
+            }
+
+            int freeSpace = 1024 * 1024 - usedSpace;
+            Console.WriteLine($"   {numFiles} File(s)   {numDirs} Dir(s)   {usedSpace} bytes used");
+            Console.WriteLine($"   {freeSpace} bytes free");
+        }
+    
 
     }
 
