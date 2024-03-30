@@ -23,10 +23,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void WriteDirectory()
         {
             List<byte> directoryBytes = new List<byte>();
+			List<int> FatIndex  = new List<int>();
 
             foreach (DirectoryEntry entry in DirectoryTable)
                 directoryBytes.AddRange(entry.ToByteArray());
 
+            byte[] EmptyBlock = new byte[1024];
+            Array.Fill(EmptyBlock, (byte)'#');
             int totalBytes = directoryBytes.Count;
             int totalBlocks = ((totalBytes + 1023) / 1024);
 
@@ -34,27 +37,32 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             if(this.FirstCluster == 0)
 				this.FirstCluster = FatTable.getAvailableBlock();
 
-            int nextCluster = this.FirstCluster;
-            int previousCluster = 0;
+             FatIndex.Add(this.FirstCluster);
 
-            byte[] EmptyBlock = new byte[1024];
-            Array.Fill(EmptyBlock, (byte)'#');
+
 
             for (int i = 0; i < totalBlocks; i++)
             {
+
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
 
-                nextCluster = (nextCluster == previousCluster ? FatTable.getAvailableBlock() : nextCluster);
-                VirtualDisk.writeBlock(EmptyBlock, nextCluster);
-                VirtualDisk.writeBlock(blockData, nextCluster);
 
+                if (FatIndex.Count < totalBlocks)
+                {
+                    if(FatTable.getValue(FatIndex.Last()) == -1)
+						FatIndex.Add(FatTable.getAvailableBlock());
+                    else
+                        FatIndex.Add(FatTable.getValue(FatIndex.Last()));
+                }
 
-                FatTable.setValue(nextCluster, -1);
-                if(previousCluster != 0)
-					FatTable.setValue(previousCluster, nextCluster);
-                previousCluster = nextCluster;
+                FatTable.setValue(FatIndex[i], -1);
+				if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
+
+                VirtualDisk.writeBlock(EmptyBlock, FatIndex[i]);
+                VirtualDisk.writeBlock(blockData, FatIndex[i]);
             }
+
 
             FatTable.writeFatTable();
         }
