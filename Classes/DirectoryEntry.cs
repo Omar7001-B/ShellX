@@ -62,7 +62,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
-        public virtual void UpdateName(string name)
+        public virtual void UpdateName(string name) // Function in parent class
         {
 			FileName = FormateFileName(name, FileAttribute);
 		}
