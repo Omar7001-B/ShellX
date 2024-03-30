@@ -146,7 +146,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return -1;
         }
 
-        public override void UpdateName(string newName)
+        public override void UpdateName(string newName) // Function Update Name in Directory
         {
             base.UpdateName(newName);
             WriteDirectory();
