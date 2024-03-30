@@ -17,7 +17,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             : base(name, attribute, cluster, size) { Parent = parent; }
 
         public Directory(DirectoryEntry entry, Directory parent = null)
-                : base(entry.Filename, entry.FileAttribute, entry.FirstCluster, entry.FileSize)
+                : base(entry.FileName, entry.FileAttribute, entry.FirstCluster, entry.FileSize)
         { Parent = parent; }
 
         public void WriteDirectory()
@@ -93,7 +93,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             // Remove empty entries
-             DirectoryTable.RemoveAll(entry => entry.Filename == "###########");
+             DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
         }
 
         public DirectoryEntry GetActualType(DirectoryEntry entry)
@@ -108,7 +108,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void DeleteDirectory()
         {
-            if (new string(Filename).Equals("root", StringComparison.OrdinalIgnoreCase))
+            if (new string(FileName).Equals("root", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("Cannot delete root directory.");
                 return;
@@ -126,7 +126,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             if (Parent != null)
             {
-                int index = Parent.Search(new string(Filename));
+                int index = Parent.Search(new string(FileName));
                 if (index != -1)
                 {
                     Parent.DirectoryTable.RemoveAt(index);
@@ -142,7 +142,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public int Search(string name)
         {
             for (int i = 0; i < DirectoryTable.Count; i++)
-                if (DirectoryTable[i].Filename == name) return i;
+                if (DirectoryTable[i].FileName == FormateFileName(name)) return i;
             return -1;
         }
     }
