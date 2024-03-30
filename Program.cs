@@ -8,22 +8,7 @@ namespace Simple_Shell_And_File_System__FAT_
     {
         static void Main(string[] args)
         {
-           // FunctionalityTests.TestDirectory();
-           VirtualDisk.Initialize();
-           //FunctionalityTests.TestingDirectoryAgain();
-
-            Directory parentEntry = new Directory("ParentDir", 0, 5, 0, null);
-            parentEntry.PrintDirectoryContents();
-            parentEntry.DirectoryTable.Add(new Directory("TestDir", 0, 0, 0, parentEntry));
-
-            foreach (var entry in parentEntry.DirectoryTable)
-            {
-				Console.WriteLine(entry.Filename);
-                Console.WriteLine((entry is Directory ? "Directory" : "Not Directory"));
-			}
-
-            FatTable.printFatTable(0, 20);
-           
+            VirtualDisk.Initialize();
             Shell.Run();
         }
     }

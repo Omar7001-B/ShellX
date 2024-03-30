@@ -40,6 +40,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             VirtualDisk.Initialize();
             fileSystem = new FileSystem();
+
             while (true)
             {
                 Console.Write($"{fileSystem.ShowCurrentPath()}> ");
@@ -78,21 +79,15 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 string command = args[0].ToLower();
                 if (commands.TryGetValue(command, out var commandInfo))
-                {
                     Console.WriteLine($"{command,-10} - {commandInfo.Description}");
-                }
                 else
-                {
                     Console.WriteLine($"Help not available for '{command}'.");
-                }
             }
             else
             {
                 Console.WriteLine("Available commands:");
                 foreach (var entry in commands)
-                {
                     Console.WriteLine($"{entry.Key,-10} - {entry.Value.Description}\n");
-                }
             }
         }
 
@@ -117,15 +112,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             string targetDirectory = args[0];
             if (targetDirectory == "..")
-            {
-                // Navigate to the parent directory
                 fileSystem.NavigateUp();
-            }
             else
-            {
-                // Navigate to the specified directory
                 fileSystem.NavigateToFolder(targetDirectory);
-            }
+            
         }
 
 
