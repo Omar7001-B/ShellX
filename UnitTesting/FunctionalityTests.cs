@@ -51,7 +51,7 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
             DirectoryEntry newEntry = new DirectoryEntry().FromByteArray(entryData);
 
             Console.WriteLine("\nNew Directory Entry Properties:");
-            Console.WriteLine($"Filename: {newEntry.Filename}");
+            Console.WriteLine($"FileName: {newEntry.FileName}");
             Console.WriteLine($"File Attribute: {newEntry.FileAttribute}");
             Console.WriteLine($"First Cluster: {newEntry.FirstCluster}");
             Console.WriteLine($"File Size: {newEntry.FileSize}");
@@ -87,7 +87,7 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
             if (index != -1)
             {
                 Console.WriteLine($"Found at index: {index}");
-                Console.WriteLine($"Filename: {new string(readDirectory.DirectoryTable[index].Filename)}");
+                Console.WriteLine($"FileName: {new string(readDirectory.DirectoryTable[index].FileName)}");
             }
             else
             {

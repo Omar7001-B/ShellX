@@ -26,7 +26,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public string GetCurrentDirectory()
         {
-            return CurrentDirectory.Filename;
+            return CurrentDirectory.FileName;
         }
 
         public void AddFolder(string folderName)
@@ -39,7 +39,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             if (CurrentDirectory.Search(folderName) != -1)
             {
-                Console.WriteLine($"Folder '{folderName}' already exists.");
+                Console.WriteLine($"Folder '{DirectoryEntry.FormateFileName(folderName)}' already exists.");
                 return;
             }
 
@@ -131,7 +131,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             while (current != null)
             {
-                path.Insert(0, current.Filename);
+                path.Insert(0, current.FileName);
                 if (current.Parent != null)
                     path.Insert(0, '/');
                 current = current.Parent;
@@ -155,7 +155,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 string type = (entry.FileAttribute == 1) ? "<DIR>" : "";
                 string fileSize = (entry.FileAttribute == 1) ? "" : $"{entry.FileSize}B";
-                Console.WriteLine($"{type,-6} {fileSize,-10} {entry.Filename}");
+                Console.WriteLine($"{type,-6} {fileSize,-10} {entry.FileName}");
                 numFiles += (entry.FileAttribute == 0) ? 1 : 0;
                 numDirs += (entry.FileAttribute == 1) ? 1 : 0;
                 usedSpace += entry.FileSize;
