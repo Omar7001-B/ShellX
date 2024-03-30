@@ -69,9 +69,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void ReadDirectory()
         {
+            DirectoryTable.Clear();
             List<byte> directoryBytes = new List<byte>();
 
             int currentCluster = this.FirstCluster;
+            
+            if(currentCluster < 5  || FatTable.getValue(currentCluster) == 0)
+				return;
 
             while (currentCluster != -1)
             {
