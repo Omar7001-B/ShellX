@@ -62,6 +62,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
+        public virtual void UpdateName(string name)
+        {
+			FileName = FormateFileName(name, FileAttribute);
+		}
+
         public static string FormateFileName(string name, int attribute = 1)
         {
             name = name.Trim();

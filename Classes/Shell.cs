@@ -27,7 +27,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
-                {"rename", new Command { Description  = "Renames a file.", Action = null }},
+                {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
                 {"import", new Command { Description  = "Import text file(s) from your computer", Action = null }},
                 {"export", new Command { Description  = "Export text file(s) to your computer", Action = null }},
@@ -159,6 +159,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             fileSystem.DeleteFolder(args[0]);
         }
+
+        public static void Rename(string[] args)
+        {
+            fileSystem.RenameDirectory(args);
+		}
 
 
 

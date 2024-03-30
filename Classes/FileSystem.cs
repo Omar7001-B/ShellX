@@ -8,7 +8,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 {
     public class FileSystem
     {
-        public Directory CurrentDirectory { get; set; }
+
+        private Directory _currentDirectory;
+
+		public Directory CurrentDirectory
+        {
+            get => _currentDirectory;
+            set { _currentDirectory = value; _currentDirectory?.ReadDirectory(); }
+        }
 
         public FileSystem()
         {
@@ -66,7 +73,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             CurrentDirectory = folder;
-            CurrentDirectory.ReadDirectory();
+            //CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
             Console.WriteLine($"Navigated to folder '{folderName}'.");
         }
 
@@ -79,7 +86,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             CurrentDirectory = CurrentDirectory.Parent;
-            CurrentDirectory.ReadDirectory();
+            //CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
             Console.WriteLine("Navigated up to the parent directory.");
         }
 
@@ -89,7 +96,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             while (temp.Parent != null)
                 temp = temp.Parent;
             CurrentDirectory = temp;
-            CurrentDirectory.ReadDirectory();
+            // CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
             Console.WriteLine("Navigated to the root directory.");
         }
 
@@ -165,7 +172,36 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"   {numFiles} File(s)   {numDirs} Dir(s)   {usedSpace} bytes used");
             Console.WriteLine($"   {freeSpace} bytes free");
         }
+
+        public void RenameDirectory(string[] args)
+        {
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Usage: rename <current_name> <new_name>");
+                return;
+            }
+
+            string currentName = args[0];
+            string newName = args[1];
+
+            int index = CurrentDirectory.Search(currentName);
+
+            if (index == -1)
+            {
+                Console.WriteLine($"Directory '{currentName}' not found.");
+                return;
+            }
+
+            Directory entry = (Directory)CurrentDirectory.DirectoryTable[index];
+            entry.UpdateName(newName);
+
+            Console.WriteLine($"Directory '{currentName}' renamed to '{newName}'.");
+        }
+
+
+
     
+
 
     }
 

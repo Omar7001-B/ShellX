@@ -145,6 +145,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (DirectoryTable[i].FileName == FormateFileName(name)) return i;
             return -1;
         }
+
+        public override void UpdateName(string newName)
+        {
+            base.UpdateName(newName);
+            WriteDirectory();
+            Parent.WriteDirectory();
+        }
     }
 
 }
