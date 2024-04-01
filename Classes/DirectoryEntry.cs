@@ -28,7 +28,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             FileName = FormateFileName(name, attribute);
             FileAttribute = attribute;
             FileSize = size;
-            FirstCluster = cluster == 0 ? FatTable.getAvailableBlock() : cluster;
+            FirstCluster = cluster;
         }
 
         public DirectoryEntry(byte[] data)
