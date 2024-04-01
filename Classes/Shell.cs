@@ -40,6 +40,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
                 // Debug
                 {"showfat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
+                {"mds", new Command { Description  = "Creates n directories.", Action = Mds }},
+                {"rds", new Command { Description  = "Removes n directories.", Action = Rds }},
+
             };
 
 
@@ -125,9 +128,46 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            if (args[0] == "..") fileSystem.NavigateUp();
-			else if (args[0] == "root") fileSystem.NavigateToRoot();
-			else fileSystem.NavigateToFolder(args[0]);
+            string directory = args[0];
+
+            if (directory == "..")
+            {
+                if (fileSystem.CurrentDirectory.Parent == null)
+                {
+                    Console.WriteLine("Already at the root directory.");
+                    return;
+                }
+
+                fileSystem.CurrentDirectory = fileSystem.CurrentDirectory.Parent;
+                Console.WriteLine("Navigated up to the parent directory.");
+            }
+            else if (directory == "root")
+            {
+                Directory temp = fileSystem.CurrentDirectory;
+                while (temp.Parent != null)
+                    temp = temp.Parent;
+                fileSystem.CurrentDirectory = temp;
+                Console.WriteLine("Navigated to the root directory.");
+            }
+            else
+            {
+                int index = fileSystem.CurrentDirectory.Search(directory);
+
+                if (index == -1)
+                {
+                    Console.WriteLine($"Folder '{directory}' not found.");
+                    return;
+                }
+
+                if (!(fileSystem.CurrentDirectory.DirectoryTable[index] is Directory folder))
+                {
+                    Console.WriteLine($"'{directory}' is not a folder.");
+                    return;
+                }
+
+                fileSystem.CurrentDirectory = folder;
+                Console.WriteLine($"Navigated to folder '{directory}'.");
+            }
         }
 
 
@@ -218,6 +258,28 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
 			FatTable.printFatTable(0, 21);
 		}
+
+        public static void Mds(string[] args)
+        {
+            if(args.Length != 1)
+            {
+				Console.WriteLine("Usage: mds <number>");
+				return;
+			}
+
+            int n = int.Parse(args[0]);
+            FunctionalityTests.CreateDirecotries(n);
+		}
+
+        public static void Rds(string[] args)
+        {
+			if(args.Length != 1)
+            { 
+                Console.WriteLine("Usage: rds <number>");
+            }
+            int n = int.Parse(args[0]);
+            FunctionalityTests.DeleteDirecotries(n);
+        }
 
     }
 
