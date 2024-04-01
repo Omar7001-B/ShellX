@@ -45,55 +45,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine($"Folder '{DirectoryEntry.FormateFileName(folderName)}' already exists.");
                 return;
             }
-
             Directory newFolder = new Directory(folderName, 1, 0, 0, CurrentDirectory);
             CurrentDirectory.DirectoryTable.Add(newFolder);
             CurrentDirectory.WriteDirectory();
             Console.WriteLine($"Folder '{folderName}' created successfully.");
-        }
-
-        public void NavigateToFolder(string folderName)
-        {
-            int index = CurrentDirectory.Search(folderName);
-
-            if (index == -1)
-            {
-                Console.WriteLine($"Folder '{folderName}' not found.");
-                return;
-            }
-
-            if (!(CurrentDirectory.DirectoryTable[index] is Directory folder))
-            {
-                Console.WriteLine($"'{folderName}' is not a folder.");
-                return;
-            }
-
-            CurrentDirectory = folder;
-            // CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
-            Console.WriteLine($"Navigated to folder '{folderName}'.");
-        }
-
-        public void NavigateUp()
-        {
-            if (CurrentDirectory.Parent == null)
-            {
-                Console.WriteLine("Already at the root directory.");
-                return;
-            }
-
-            CurrentDirectory = CurrentDirectory.Parent;
-            //CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
-            Console.WriteLine("Navigated up to the parent directory.");
-        }
-
-        public void NavigateToRoot()
-        {
-            Directory temp = CurrentDirectory;
-            while (temp.Parent != null)
-                temp = temp.Parent;
-            CurrentDirectory = temp;
-            // CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
-            Console.WriteLine("Navigated to the root directory.");
         }
 
         public void DeleteFolder(string folderName)
