@@ -124,6 +124,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
+            ReadDirectory(); // Remove all the files and directories inside the directory
+            while(DirectoryTable.Count > 0)
+				if (DirectoryTable[0] is Directory directory)
+					directory.DeleteDirectory();
+
+
             int currentIndex = FirstCluster;
             int nextIndex;
 
@@ -148,7 +154,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             //Console.WriteLine("Directory deleted.");
         }
-
 
         public int Search(string name)
         {
