@@ -14,7 +14,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 		public Directory CurrentDirectory
         {
             get => _currentDirectory;
-            set { _currentDirectory = value; _currentDirectory?.ReadDirectory(); }
+            set { _currentDirectory = value;  _currentDirectory?.ReadDirectory(); }
         }
 
         public FileSystem()
@@ -24,10 +24,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 FatTable.setValue(CurrentDirectory.FirstCluster, -1);
                 FatTable.writeFatTable();
-            }
-            else
-            {
-                CurrentDirectory.ReadDirectory();
             }
         }
 
@@ -73,7 +69,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             CurrentDirectory = folder;
-            //CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
+            // CurrentDirectory.ReadDirectory(); // Read directory is called in the setter
             Console.WriteLine($"Navigated to folder '{folderName}'.");
         }
 
@@ -175,11 +171,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void RenameDirectory(string[] args)
         {
-            if (args.Length != 2)
-            {
-                Console.WriteLine("Usage: rename <current_name> <new_name>");
-                return;
-            }
 
             string currentName = args[0];
             string newName = args[1];
@@ -199,10 +190,40 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         }
 
 
+        // Helper Functions
+        public static bool ValidateName(string name)
+        {
+			if (string.IsNullOrWhiteSpace(name))
+            {
+				Console.WriteLine("Name cannot be empty.");
+				return false;
+			}
 
-    
+            if(!ValidNameCharacters(name))
+            {
+				return false;
+			}
 
+			if (name.Length > 11)
+            {
+                Console.WriteLine($"Name cannot be longer than 11 characters.");
+				return false;
+			}
 
+			return true;
+		}
+
+        public static bool ValidNameCharacters(string name)
+        {
+            string illegalChars = "#%&{}\\<>*?/ $!'\":@+`|=";
+            foreach (char c in name)
+				if (illegalChars.Contains(c))
+                {
+					Console.WriteLine($"Illegal character '{c}' in name.");
+					return false;
+				}
+			return true;
+		}
     }
 
 }

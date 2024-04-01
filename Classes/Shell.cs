@@ -43,11 +43,21 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             VirtualDisk.Initialize();
             fileSystem = new FileSystem();
 
+
+            /*
+            for(int i = 0; i < 130; i++)
+            {
+                string[] folder = new string[]{ $"Folder{i}" };
+                Md(folder);
+			}
+            */
+
+
             /*
             for(int i = 0; i < 80; i++)
             {
                 string[] folder = new string[]{ $"Folder{i}" };
-                Md(folder);
+                Rd(folder);
 			}
             */
 
@@ -142,7 +152,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            fileSystem.AddFolder(args[0]);
+            if (FileSystem.ValidateName(args[0]))
+				fileSystem.AddFolder(args[0]);
         }
 
         public static void Dir(string[] args)
@@ -157,15 +168,20 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            fileSystem.DeleteFolder(args[0]);
+            if (FileSystem.ValidateName(args[0]))
+				fileSystem.DeleteFolder(args[0]);
         }
 
         public static void Rename(string[] args)
         {
-            fileSystem.RenameDirectory(args);
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Usage: rename <current_name> <new_name>");
+                return;
+            }
+            if (FileSystem.ValidateName(args[0]))
+				fileSystem.RenameDirectory(args);
 		}
-
-
 
         // Debug Part
         public static void ShowFat(string[] args)
