@@ -94,5 +94,23 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
                 Console.WriteLine("File not found.");
             }
         }
+
+        public static void CreateDirecotries(int n)
+        {
+            for(int i = 0; i < n; i++)
+            {
+                string[] folder = new string[]{ $"Folder{i}" };
+                Shell.Md(folder);
+			}
+        }
+
+        public static void DeleteDirecotries(int n)
+        {
+            for(int i = 0;i < n; i++)
+            {
+                string[] folder = new string[]{ $"Folder{i}" };
+                Shell.Rd(folder);
+            }
+        }
 	}
 }

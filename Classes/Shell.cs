@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Simple_Shell_And_File_System__FAT_.Classes;
+using Simple_Shell_And_File_System__FAT_.UnitTesting;
 
 namespace Simple_Shell_And_File_System__FAT_.Classes
 {
@@ -17,22 +19,27 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public static FileSystem fileSystem;
         public static Dictionary<string, Command> commands = new Dictionary<string, Command>
         {
+                // General
                 {"help", new Command { Description  = "Provides Help information for commands.", Action = Help }},
                 {"cls", new Command { Description  = "Clear the screen.", Action = Cls }},
                 {"quit", new Command { Description  = "Quit the shell.", Action = Quit }},
 
+                // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
-                {"copy", new Command { Description  = "Copies one or more files to another location", Action = null }},
-                {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
+                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = null }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
+
+                // File
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
-                {"import", new Command { Description  = "Import text file(s) from your computer", Action = null }},
-                {"export", new Command { Description  = "Export text file(s) to your computer", Action = null }},
+                {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
+                {"import", new Command { Description  = "Import text file(s) from your computer.", Action = null }},
+                {"export", new Command { Description  = "Export text file(s) to your computer.", Action = null }},
+
                 // Debug
-                {"showfat", new Command { Description  = "Shows The Fat File System", Action = ShowFat }},
+                {"showfat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
             };
 
 
@@ -42,25 +49,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             VirtualDisk.Initialize();
             fileSystem = new FileSystem();
-
-
-            /*
-            for(int i = 0; i < 130; i++)
-            {
-                string[] folder = new string[]{ $"Folder{i}" };
-                Md(folder);
-			}
-            */
-
-
-            /*
-            for(int i = 0; i < 80; i++)
-            {
-                string[] folder = new string[]{ $"Folder{i}" };
-                Rd(folder);
-			}
-            */
-
             while (true)
             {
                 Console.Write($"{fileSystem.ShowCurrentPath()}> ");
