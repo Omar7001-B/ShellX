@@ -56,9 +56,48 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public static void printFatTable(int start = 0, int end = 1024)
         {
-            Console.WriteLine("FAT Table:");
+            Dictionary<int, List<int>> blocks = new Dictionary<int, List<int>>();
+            List<int> visited = new List<int>();
+
             for (int i = start; i < end; i++)
-                Console.WriteLine($"FAT[{i}] = {fat[i]}");
+            {
+				if (visited.Contains(i))
+					continue;
+
+				List<int> children = new List<int>();
+				int current = i;
+
+                if(i == 0)
+                {
+                    children.Add(fat[i]);
+					blocks.Add(i, children);
+					continue;
+				}
+
+				while (current != -1 && current != 0)
+                {
+                    children.Add(fat[current]);
+					visited.Add(current);
+					current = fat[current];
+				}
+
+				blocks.Add(i, children);
+			}
+
+
+
+            foreach (var block in blocks)
+            {
+				Console.Write($"fat[{block.Key}] -> ");
+                // print them and print -> between them but not after the last one
+                for (int i = 0; i < block.Value.Count; i++)
+                {
+                    Console.Write(block.Value[i]);
+                    if (i != block.Value.Count - 1)
+                        Console.Write(" -> ");
+                }
+				Console.WriteLine();
+			}
         }
 
         public static int getAvailableBlock()
@@ -77,10 +116,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public static void setValue(int index, int value)
         {
             if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4)
-				Console.WriteLine("Cannot write to reserved block");
+				Console.WriteLine($"Cannot write to reserved block fat[{index}]={fat[index]}");
 
             if(index == value)
-				Console.WriteLine("Cannot write to itself, this would lead to inf");
+				Console.WriteLine($"Cannot write to itself, this would lead to inf fat[{index}]");
 
             fat[index] = value;
         }
