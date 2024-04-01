@@ -31,7 +31,21 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             return CurrentDirectory.FileName;
         }
+        public string ShowCurrentPath()
+        {
+            StringBuilder path = new StringBuilder();
+            Directory current = CurrentDirectory;
 
+            while (current != null)
+            {
+                path.Insert(0, current.FileName);
+                if (current.Parent != null)
+                    path.Insert(0, '/');
+                current = current.Parent;
+            }
+
+            return path.ToString();
+        }
         public void AddFolder(string folderName)
         {
             if (string.IsNullOrWhiteSpace(folderName))
@@ -82,22 +96,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
         }
 
-        public string ShowCurrentPath()
-        {
-            StringBuilder path = new StringBuilder();
-            Directory current = CurrentDirectory;
-
-            while (current != null)
-            {
-                path.Insert(0, current.FileName);
-                if (current.Parent != null)
-                    path.Insert(0, '/');
-                current = current.Parent;
-            }
-
-            return path.ToString();
-        }
-
         public void ListDirectoryContents()
         {
             int numFiles = 0;
@@ -124,11 +122,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"   {freeSpace} bytes free");
         }
 
-        public void RenameDirectory(string[] args)
+        public void RenameDirectory(string currentName, string newName)
         {
 
-            string currentName = args[0];
-            string newName = args[1];
+            //string currentName = args[0];
+            //string newName = args[1];
 
             int index = CurrentDirectory.Search(currentName);
 
@@ -143,6 +141,80 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             Console.WriteLine($"Directory '{currentName}' renamed to '{newName}'.");
         }
+
+        public void CopyDirectory(string sourceName, string destinationName)
+        {
+            int sourceIndex = CurrentDirectory.Search(sourceName);
+            int destinationIndex = CurrentDirectory.Search(destinationName);
+
+            if (sourceIndex == -1)
+            {
+                Console.WriteLine($"Source directory '{sourceName}' not found.");
+                return;
+            }
+
+            if (destinationIndex == -1)
+            {
+                Console.WriteLine($"Destination directory '{destinationName}' not found.");
+                return;
+            }
+
+            Directory sourceEntry = (Directory)CurrentDirectory.DirectoryTable[sourceIndex];
+            Directory destinationEntry = (Directory)CurrentDirectory.DirectoryTable[destinationIndex];
+
+            Directory newEntry = new Directory(sourceEntry.FileName + "_copy", sourceEntry.FileAttribute, 0, sourceEntry.FileSize, destinationEntry);
+            destinationEntry.DirectoryTable.Add(newEntry);
+            destinationEntry.WriteDirectory();
+
+
+            sourceEntry.ReadDirectory();
+            newEntry.DirectoryTable = sourceEntry.DirectoryTable;
+            newEntry.WriteDirectory();
+
+            Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
+        }
+
+        public void ChangeDirectory(string directory)
+        {
+            if (directory == "..")
+            {
+                if (CurrentDirectory.Parent == null)
+                {
+                    Console.WriteLine("Already at the root directory.");
+                    return;
+                }
+
+                CurrentDirectory = CurrentDirectory.Parent;
+                Console.WriteLine("Navigated up to the parent directory.");
+            }
+            else if (directory == "root")
+            {
+                Directory temp = CurrentDirectory;
+                while (temp.Parent != null)
+                    temp = temp.Parent;
+                CurrentDirectory = temp;
+                Console.WriteLine("Navigated to the root directory.");
+            }
+            else
+            {
+                int index = CurrentDirectory.Search(directory);
+
+                if (index == -1)
+                {
+                    Console.WriteLine($"Folder '{directory}' not found.");
+                    return;
+                }
+
+                if (!(CurrentDirectory.DirectoryTable[index] is Directory folder))
+                {
+                    Console.WriteLine($"'{directory}' is not a folder.");
+                    return;
+                }
+
+                CurrentDirectory = folder;
+                Console.WriteLine($"Navigated to folder '{directory}'.");
+            }
+		}
 
 
         // Helper Functions

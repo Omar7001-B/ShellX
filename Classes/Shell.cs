@@ -27,7 +27,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
-                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = CopyDirectory }},
+                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = Copy }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
@@ -128,46 +128,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            string directory = args[0];
-
-            if (directory == "..")
-            {
-                if (fileSystem.CurrentDirectory.Parent == null)
-                {
-                    Console.WriteLine("Already at the root directory.");
-                    return;
-                }
-
-                fileSystem.CurrentDirectory = fileSystem.CurrentDirectory.Parent;
-                Console.WriteLine("Navigated up to the parent directory.");
-            }
-            else if (directory == "root")
-            {
-                Directory temp = fileSystem.CurrentDirectory;
-                while (temp.Parent != null)
-                    temp = temp.Parent;
-                fileSystem.CurrentDirectory = temp;
-                Console.WriteLine("Navigated to the root directory.");
-            }
-            else
-            {
-                int index = fileSystem.CurrentDirectory.Search(directory);
-
-                if (index == -1)
-                {
-                    Console.WriteLine($"Folder '{directory}' not found.");
-                    return;
-                }
-
-                if (!(fileSystem.CurrentDirectory.DirectoryTable[index] is Directory folder))
-                {
-                    Console.WriteLine($"'{directory}' is not a folder.");
-                    return;
-                }
-
-                fileSystem.CurrentDirectory = folder;
-                Console.WriteLine($"Navigated to folder '{directory}'.");
-            }
+			fileSystem.ChangeDirectory(args[0]);
         }
 
 
@@ -207,11 +168,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine("Usage: rename <current_name> <new_name>");
                 return;
             }
+
             if (FileSystem.ValidateName(args[0]))
-				fileSystem.RenameDirectory(args);
+                fileSystem.RenameDirectory(args[0], args[1]);
 		}
 
-        public static void CopyDirectory(string[] args)
+        public static void Copy(string[] args)
         {
             if (args.Length != 2)
             {
@@ -219,44 +181,17 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            string sourceName = args[0];
-            string destinationName = args[1];
-
-            int sourceIndex = fileSystem.CurrentDirectory.Search(sourceName);
-            int destinationIndex = fileSystem.CurrentDirectory.Search(destinationName);
-
-            if (sourceIndex == -1)
-            {
-                Console.WriteLine($"Source directory '{sourceName}' not found.");
-                return;
-            }
-
-            if (destinationIndex == -1)
-            {
-                Console.WriteLine($"Destination directory '{destinationName}' not found.");
-                return;
-            }
-
-            Directory sourceEntry = (Directory)fileSystem.CurrentDirectory.DirectoryTable[sourceIndex];
-            Directory destinationEntry = (Directory)fileSystem.CurrentDirectory.DirectoryTable[destinationIndex];
-
-            Directory newEntry = new Directory(sourceEntry.FileName + "_copy", sourceEntry.FileAttribute, 0, sourceEntry.FileSize, destinationEntry);
-            destinationEntry.DirectoryTable.Add(newEntry);
-            destinationEntry.WriteDirectory();
-
-
-            sourceEntry.ReadDirectory();
-            newEntry.DirectoryTable = sourceEntry.DirectoryTable;
-            newEntry.WriteDirectory();
-
-            Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
+            fileSystem.CopyDirectory(args[0], args[1]);
         }
-
 
         // Debug Part
         public static void ShowFat(string[] args)
         {
-			FatTable.printFatTable(0, 21);
+            if(args.Length == 0)
+				FatTable.printFatTable(0, 10);
+
+            else if(args.Length == 1)
+                FatTable.printFatTable(0, int.Parse(args[0]));
 		}
 
         public static void Mds(string[] args)
