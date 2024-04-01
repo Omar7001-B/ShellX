@@ -35,34 +35,44 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
 
             if(this.FirstCluster == 0)
+            {
 				this.FirstCluster = FatTable.getAvailableBlock();
+                FatTable.setValue(this.FirstCluster, -1);
+                Parent?.WriteDirectory();
+            }
 
              FatIndex.Add(this.FirstCluster);
 
+            while(FatTable.getValue(FatIndex.Last()) != -1)
+                FatIndex.Add(FatTable.getValue(FatIndex.Last()));
 
-
-            for (int i = 0; i < totalBlocks; i++)
+            int i = 0; 
+            do 
             {
-
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
 
-
-                if (FatIndex.Count < totalBlocks)
-                {
-                    if(FatTable.getValue(FatIndex.Last()) == -1)
-						FatIndex.Add(FatTable.getAvailableBlock());
-                    else
-                        FatIndex.Add(FatTable.getValue(FatIndex.Last()));
-                }
+                if(i >= FatIndex.Count)
+                    FatIndex.Add(FatTable.getAvailableBlock());
 
                 FatTable.setValue(FatIndex[i], -1);
 				if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
 
                 VirtualDisk.writeBlock(EmptyBlock, FatIndex[i]);
                 VirtualDisk.writeBlock(blockData, FatIndex[i]);
-            }
+            } while(++i < totalBlocks);
 
+
+            if (i < FatIndex.Count)
+            {
+                int nextValueOfLastCluster = FatIndex[i];
+                while (nextValueOfLastCluster != -1) // Removing the extra blocks
+                {
+                    int temp = nextValueOfLastCluster;
+                    nextValueOfLastCluster = FatTable.getValue(nextValueOfLastCluster);
+                    FatTable.setValue(temp, 0);
+                }
+            }
 
             FatTable.writeFatTable();
         }
@@ -117,12 +127,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             int currentIndex = FirstCluster;
             int nextIndex;
 
-            while (currentIndex != -1)
-            {
-                nextIndex = FatTable.getValue(currentIndex);
-                FatTable.setValue(currentIndex, 0);
-                currentIndex = nextIndex;
-            }
+            if(currentIndex != 0 && FatTable.getValue(currentIndex) != 0)
+				while (currentIndex != -1)
+				{
+					nextIndex = FatTable.getValue(currentIndex);
+					FatTable.setValue(currentIndex, 0);
+					currentIndex = nextIndex;
+				}
 
             if (Parent != null)
             {
@@ -135,7 +146,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 }
             }
 
-            Console.WriteLine("Directory deleted.");
+            //Console.WriteLine("Directory deleted.");
         }
 
 
@@ -149,7 +160,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public override void UpdateName(string newName) // Function Update Name in Directory
         {
             base.UpdateName(newName);
-            WriteDirectory();
             Parent.WriteDirectory();
         }
     }
