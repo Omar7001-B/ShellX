@@ -20,6 +20,18 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 : base(entry.FileName, entry.FileAttribute, entry.FirstCluster, entry.FileSize)
         { Parent = parent; }
 
+
+        public void ClearFat() 
+        {
+            int currentIndex = FirstCluster;
+            while(currentIndex != -1 && currentIndex != 0)
+            {
+				int nextIndex = FatTable.getValue(currentIndex);
+				FatTable.setValue(currentIndex, 0);
+				currentIndex = nextIndex;
+			}
+		}
+
         public void WriteDirectory()
         {
             List<byte> directoryBytes = new List<byte>();
@@ -30,6 +42,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             byte[] EmptyBlock = new byte[1024];
             Array.Fill(EmptyBlock, (byte)'#');
+
             int totalBytes = directoryBytes.Count;
             int totalBlocks = ((totalBytes + 1023) / 1024);
 
@@ -38,16 +51,20 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
 				this.FirstCluster = FatTable.getAvailableBlock();
                 FatTable.setValue(this.FirstCluster, -1);
-                Parent?.WriteDirectory();
+                if (Parent != null)
+                {
+                    if(Parent.Search(FileName) != -1)
+                        Parent.DirectoryTable[Parent.Search(FileName)] = this;
+                    else 
+                        Parent.DirectoryTable.Add(this);
+
+                    Parent?.WriteDirectory();
+                }
             }
 
-             FatIndex.Add(this.FirstCluster);
+            FatIndex.Add(this.FirstCluster); ClearFat();
 
-            while(FatTable.getValue(FatIndex.Last()) != -1)
-                FatIndex.Add(FatTable.getValue(FatIndex.Last()));
-
-            int i = 0; 
-            do 
+            for(int i = 0; i < totalBlocks; i++)
             {
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
@@ -60,18 +77,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
                 VirtualDisk.writeBlock(EmptyBlock, FatIndex[i]);
                 VirtualDisk.writeBlock(blockData, FatIndex[i]);
-            } while(++i < totalBlocks);
-
-
-            if (i < FatIndex.Count)
-            {
-                int nextValueOfLastCluster = FatIndex[i];
-                while (nextValueOfLastCluster != -1) // Removing the extra blocks
-                {
-                    int temp = nextValueOfLastCluster;
-                    nextValueOfLastCluster = FatTable.getValue(nextValueOfLastCluster);
-                    FatTable.setValue(temp, 0);
-                }
             }
 
             FatTable.writeFatTable();
@@ -91,7 +96,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 byte[] blockData = VirtualDisk.readBlock(currentCluster);
                 directoryBytes.AddRange(blockData);
-
                 currentCluster = FatTable.getValue(currentCluster);
             }
 
@@ -124,22 +128,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            ReadDirectory(); // Remove all the files and directories inside the directory
+            ReadDirectory(); //Remove
             while(DirectoryTable.Count > 0)
 				if (DirectoryTable[0] is Directory directory)
 					directory.DeleteDirectory();
 
-
-            int currentIndex = FirstCluster;
-            int nextIndex;
-
-            if(currentIndex != 0 && FatTable.getValue(currentIndex) != 0)
-				while (currentIndex != -1)
-				{
-					nextIndex = FatTable.getValue(currentIndex);
-					FatTable.setValue(currentIndex, 0);
-					currentIndex = nextIndex;
-				}
+            ClearFat();
 
             if (Parent != null)
             {
@@ -148,10 +142,10 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {
                     Parent.DirectoryTable.RemoveAt(index);
                     Parent.WriteDirectory();
-					FatTable.writeFatTable();
                 }
             }
 
+			FatTable.writeFatTable();
             //Console.WriteLine("Directory deleted.");
         }
 
