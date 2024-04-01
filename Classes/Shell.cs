@@ -27,7 +27,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
-                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = null }},
+                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = CopyDirectory }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
@@ -170,6 +170,48 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             if (FileSystem.ValidateName(args[0]))
 				fileSystem.RenameDirectory(args);
 		}
+
+        public static void CopyDirectory(string[] args)
+        {
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Usage: copy <source_directory> <destination_directory>");
+                return;
+            }
+
+            string sourceName = args[0];
+            string destinationName = args[1];
+
+            int sourceIndex = fileSystem.CurrentDirectory.Search(sourceName);
+            int destinationIndex = fileSystem.CurrentDirectory.Search(destinationName);
+
+            if (sourceIndex == -1)
+            {
+                Console.WriteLine($"Source directory '{sourceName}' not found.");
+                return;
+            }
+
+            if (destinationIndex == -1)
+            {
+                Console.WriteLine($"Destination directory '{destinationName}' not found.");
+                return;
+            }
+
+            Directory sourceEntry = (Directory)fileSystem.CurrentDirectory.DirectoryTable[sourceIndex];
+            Directory destinationEntry = (Directory)fileSystem.CurrentDirectory.DirectoryTable[destinationIndex];
+
+            Directory newEntry = new Directory(sourceEntry.FileName + "_copy", sourceEntry.FileAttribute, 0, sourceEntry.FileSize, destinationEntry);
+            destinationEntry.DirectoryTable.Add(newEntry);
+            destinationEntry.WriteDirectory();
+
+
+            sourceEntry.ReadDirectory();
+            newEntry.DirectoryTable = sourceEntry.DirectoryTable;
+            newEntry.WriteDirectory();
+
+            Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
+        }
+
 
         // Debug Part
         public static void ShowFat(string[] args)
