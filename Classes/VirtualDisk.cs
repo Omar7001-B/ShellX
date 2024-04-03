@@ -10,6 +10,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 	{
 
 		public const string DiskFileName = "Disk.txt";
+
+        public static byte[] EmptyBlock = Encoding.ASCII.GetBytes(new string('#', 1024));
         public static void Initialize()
         {
             if (!File.Exists(DiskFileName))
