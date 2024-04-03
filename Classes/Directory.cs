@@ -28,6 +28,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
 				int nextIndex = FatTable.getValue(currentIndex);
 				FatTable.setValue(currentIndex, 0);
+                VirtualDisk.writeBlock(VirtualDisk.EmptyBlock, currentIndex);
 				currentIndex = nextIndex;
 			}
 		}
@@ -39,9 +40,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             foreach (DirectoryEntry entry in DirectoryTable)
                 directoryBytes.AddRange(entry.ToByteArray());
-
-            byte[] EmptyBlock = new byte[1024];
-            Array.Fill(EmptyBlock, (byte)'#');
 
             int totalBytes = directoryBytes.Count;
             int totalBlocks = ((totalBytes + 1023) / 1024);
@@ -68,14 +66,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 int blockSize = Math.Min(1024, totalBytes - (i * 1024));
                 byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
-
-                if(i >= FatIndex.Count)
-                    FatIndex.Add(FatTable.getAvailableBlock());
-
+                if(i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
                 FatTable.setValue(FatIndex[i], -1);
 				if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
-
-                VirtualDisk.writeBlock(EmptyBlock, FatIndex[i]);
                 VirtualDisk.writeBlock(blockData, FatIndex[i]);
             }
 
@@ -136,14 +129,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             ClearFat();
 
             if (Parent != null)
-            {
-                int index = Parent.Search(new string(FileName));
-                if (index != -1)
-                {
-                    Parent.DirectoryTable.RemoveAt(index);
-                    Parent.WriteDirectory();
-                }
-            }
+                Parent.RemoveChild(this);
 
 			FatTable.writeFatTable();
             //Console.WriteLine("Directory deleted.");
@@ -155,6 +141,24 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (DirectoryTable[i].FileName == FormateFileName(name)) return i;
             return -1;
         }
+
+        public void AddChild(Directory entry)
+        {
+            ReadDirectory();
+            entry.Parent = this;
+            if(Search(entry.FileName) != -1) DirectoryTable.Add(entry);
+			WriteDirectory();
+		}
+
+        public void RemoveChild(Directory entry)
+        {
+			ReadDirectory();
+			int index = Search(entry.FileName);
+			if (index != -1) DirectoryTable.RemoveAt(index);
+			WriteDirectory();
+		}
+
+
 
         public override void UpdateName(string newName) // Function Update Name in Directory
         {
