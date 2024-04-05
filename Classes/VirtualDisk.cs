@@ -34,7 +34,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 }
 
                 FatTable.Initialize(); // int fat[1024]
-                FatTable.writeFatTable();
             }
             else
             {
