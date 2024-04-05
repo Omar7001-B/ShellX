@@ -29,6 +29,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return contentBytes;
         }
 
+        public void WriteEntryToDisk()
+        {
+			List<byte> directoryBytes = ConvertContentToBytes();
+			WriteBytesToDisk(directoryBytes);
+		}
+
         public void ConvertBytesToContent(List<byte> data)
         {
 			DirectoryTable.Clear();
@@ -42,13 +48,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			// Remove empty entries
 			DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
 		}
-
-        public void WriteEntryToDisk()
-        {
-			List<byte> directoryBytes = ConvertContentToBytes();
-			WriteBytesToDisk(directoryBytes);
-		}
-
         public void ReadEntryFromDisk()
         {
            List<byte> entryBytes = ReadBytesFromDisk();
