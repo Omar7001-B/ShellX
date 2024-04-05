@@ -170,8 +170,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            if (FileSystem.ValidateName(args[0]))
-                fileSystem.RenameDirectory(args[0], args[1]);
+			fileSystem.RenameDirectory(args[0], args[1]);
 		}
 
         public static void Copy(string[] args)

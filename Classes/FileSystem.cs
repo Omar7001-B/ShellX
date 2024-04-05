@@ -133,16 +133,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void RenameDirectory(string currentName, string newName)
         {
 
-            //string currentName = args[0];
-            //string newName = args[1];
-
             int index = CurrentDirectory.Search(currentName);
-
             if (index == -1)
             {
                 Console.WriteLine($"Directory '{currentName}' not found.");
                 return;
             }
+
+            if(CurrentDirectory.Search(newName) != -1)
+            {
+                Console.WriteLine($"Directory '{newName}' already exists.");
+                return;
+            }
+
 
             Directory entry = (Directory)CurrentDirectory.DirectoryTable[index];
             entry.UpdateName(newName);

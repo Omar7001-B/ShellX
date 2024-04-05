@@ -108,14 +108,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			if (index != -1) DirectoryTable.RemoveAt(index);
 			WriteEntryToDisk();
 		}
-
-
-
-        public override void UpdateName(string newName) // Function Update Name in Directory
-        {
-            base.UpdateName(newName);
-            Parent.WriteEntryToDisk();
-        }
     }
 
 }
