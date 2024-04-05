@@ -62,13 +62,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			base.DeleteEntryFromDisk();
 		}
 		
-        public DirectoryEntry Search(string name)
+        public int Search(string name)
         {
-			foreach (DirectoryEntry entry in DirectoryTable)
-				if (entry.FileName == name) return entry;
-			return null;
+            for (int i = 0; i < DirectoryTable.Count; i++)
+                if (DirectoryTable[i].FileName == FormateFileName(name)) return i;
+            return -1;
         }
-		public DirectoryEntry Search(DirectoryEntry entry)
+
+		public int Search(DirectoryEntry entry)
 		{
 			return Search(entry.FileName);
 		}
@@ -76,19 +77,18 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void AddChild(DirectoryEntry entry)
         {
             ReadEntryFromDisk();
-			if (Search(entry) == null)
-			{
-				entry.Parent = this;
-				DirectoryTable.Add(entry);
-			}
+			int index = Search(entry);
+			entry.Parent = this;
+            if(index == -1) DirectoryTable.Add(entry);
+			else DirectoryTable[index] = entry;
 			WriteEntryToDisk();
 		}
 
         public void RemoveChild(DirectoryEntry entry)
         {
 			ReadEntryFromDisk();
-			if (Search(entry) != null)
-				DirectoryTable.RemoveAt(index);
+			int index = Search(entry.FileName);
+			if (index != -1) DirectoryTable.RemoveAt(index);
 			WriteEntryToDisk();
 		}
     }
