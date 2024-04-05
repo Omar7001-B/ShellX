@@ -156,15 +156,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 this.FirstCluster = FatTable.getAvailableBlock();
                 FatTable.setValue(this.FirstCluster, -1);
-                if (Parent != null)
-                {
-                    int index = Parent.Search(FileName);
-                    if (index != -1)
-                        Parent.DirectoryTable[index] = this;
-                    else
-                        Parent.DirectoryTable.Add(this);
-                    Parent?.WriteEntryToDisk();
-                }
+				Parent?.AddChild(this);
             }
         }
 
