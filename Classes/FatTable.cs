@@ -21,6 +21,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             fat[4] = -1;
 
             Array.Fill(fat, 0, 5, 1019); // Data Blocks
+			writeFatTable();
         }
 
         public static void writeFatTable()
