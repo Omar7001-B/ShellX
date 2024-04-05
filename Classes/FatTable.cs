@@ -122,6 +122,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 				Console.WriteLine($"Cannot write to itself, this would lead to inf fat[{index}]");
 
             fat[index] = value;
+            writeFatTable();
         }
 
         public static int getNumberOfFreeBlocks()
