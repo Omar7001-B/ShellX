@@ -33,8 +33,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
 
                 // File
-                {"type", new Command { Description  = "Displays the contents of a text file.", Action = null }},
-                {"del", new Command { Description  = "Deletes one or more files.", Action = null }},
+                {"echo", new Command { Description  = "Displays text or variables and can be used to write or append to files", Action = Echo }},
+                {"type", new Command { Description  = "Displays the contents of a text file.", Action = Type }},
+                {"del", new Command { Description  = "Deletes one or more files.", Action = Del }},
                 {"import", new Command { Description  = "Import text file(s) from your computer.", Action = null }},
                 {"export", new Command { Description  = "Export text file(s) to your computer.", Action = null }},
 
@@ -202,8 +203,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 				return;
 			}
 
-            int n = int.Parse(args[0]);
-            FunctionalityTests.CreateDirecotries(n);
+            FunctionalityTests.CreateDirecotries(int.Parse(args[0]));
 		}
 
         public static void Rds(string[] args)
@@ -212,9 +212,61 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             { 
                 Console.WriteLine("Usage: rds <number>");
             }
-            int n = int.Parse(args[0]);
-            FunctionalityTests.DeleteDirecotries(n);
+            FunctionalityTests.DeleteDirecotries(int.Parse(args[0]));
         }
+
+
+        public static void Echo(string[] args)
+        {
+			if (args.Length == 0)
+            {
+				Console.WriteLine("Usage: echo <text>");
+				return;
+			}
+
+            if (args.Contains(">") || args.Contains(">>"))
+            {
+                string delimiter = args.Contains(">") ? ">" : ">>";
+
+                int index = Array.IndexOf(args, delimiter);
+                string[] text = args.Take(index).ToArray();
+                string fileName = args[index + 1];
+
+
+                if (delimiter == ">")
+                    fileSystem.WriteFile(fileName, string.Join(" ", text));
+                else
+                    fileSystem.AppendFile(fileName, string.Join(" ", text));
+            }
+            else
+            {
+                Console.WriteLine(string.Join(" ", args));
+            }
+
+
+		}
+
+        public static void Type(string[] args)
+        {
+			if (args.Length != 1)
+            {
+				Console.WriteLine("Usage: type <file>");
+				return;
+			}
+
+            fileSystem.ReadFile(args[0]);
+		}
+
+        public static void Del(string[] args)
+        {
+			if (args.Length != 1)
+            {
+				Console.WriteLine("Usage: del <file>");
+				return;
+			}
+
+            fileSystem.DeleteFile(args[0]);
+		}
 
     }
 
