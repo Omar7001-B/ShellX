@@ -216,6 +216,78 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 		}
 
+        public void WriteFile(string fileName, string content)
+        {
+            int index = CurrentDirectory.Search(fileName);
+            if (index != -1)
+            {
+                FileEntry entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
+                entry.UpdateFile(content);
+                Console.WriteLine($"File '{fileName}' updated successfully.");
+            }
+            else
+            {
+				FileEntry newFile = new FileEntry(fileName, 0, 0, 0, CurrentDirectory);
+				newFile.UpdateFile(content);
+                CurrentDirectory.AddChild(newFile);
+				Console.WriteLine($"File '{fileName}' created successfully.");
+			}
+        }
+
+        public void AppendFile(string fileName, string content)
+        {
+			int index = CurrentDirectory.Search(fileName);
+			if (index != -1)
+            {
+				FileEntry entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
+				entry.AppendFile(content);
+				Console.WriteLine($"File '{fileName}' updated successfully.");
+			}
+			else
+            {
+				FileEntry newFile = new FileEntry(fileName, 0, 0, 0, CurrentDirectory);
+                CurrentDirectory.AddChild(newFile);
+				Console.WriteLine($"File '{fileName}' created successfully.");
+			}
+		}
+
+        public void ReadFile(string fileName)
+        {
+            int index = CurrentDirectory.Search(fileName);
+			if (index != -1)
+            {
+				FileEntry entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
+				entry.ReadFile();
+				Console.WriteLine(entry.Content);
+			}
+			else
+            {
+				Console.WriteLine($"File '{fileName}' not found.");
+			}
+        }
+
+        public void DeleteFile(string fileName)
+        {
+			int index = CurrentDirectory.Search(fileName);
+            if (index != -1)
+            {
+                if (CurrentDirectory.DirectoryTable[index] is FileEntry entry)
+                {
+                    entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
+                    entry.DeleteFile();
+                    Console.WriteLine($"File '{fileName}' deleted successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"'{fileName}' is not a file.");
+                }
+			}
+			else
+            {
+				Console.WriteLine($"File '{fileName}' not found.");
+			}
+		}
+
 
         // Helper Functions
         public static bool ValidateName(string name)
