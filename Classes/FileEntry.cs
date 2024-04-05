@@ -8,7 +8,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 {
 	internal class FileEntry : DirectoryEntry
 	{
-		public Directory Parent;
+		//public Directory Parent;
 		public string Content;
 
 		public FileEntry() : base() { }
@@ -63,7 +63,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 					else
 						Parent.DirectoryTable.Add(this);
 
-					Parent?.WriteDirectory();
+					Parent?.WriteEntryToDisk();
 				}
 			}
 

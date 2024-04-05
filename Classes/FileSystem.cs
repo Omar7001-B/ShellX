@@ -14,7 +14,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 		public Directory CurrentDirectory
         {
             get => _currentDirectory;
-            set { _currentDirectory = value;  _currentDirectory?.ReadDirectory(); }
+            set { _currentDirectory = value;  _currentDirectory?.ReadEntryFromDisk(); }
         }
 
         public string ExportPath { get; set; }
@@ -69,7 +69,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
             Directory newFolder = new Directory(folderName, 1, 0, 0, CurrentDirectory);
             CurrentDirectory.DirectoryTable.Add(newFolder);
-            CurrentDirectory.WriteDirectory();
+            CurrentDirectory.WriteEntryToDisk();
             Console.WriteLine($"Folder '{folderName}' created successfully.");
         }
 
@@ -94,7 +94,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             if (entry is Directory directory)
             {
                 CurrentDirectory.DirectoryTable.RemoveAt(index);
-                CurrentDirectory.WriteDirectory();
+                CurrentDirectory.WriteEntryToDisk();
                 directory.DeleteDirectory();
                 Console.WriteLine($"Directory '{name}' deleted successfully.");
             }
@@ -172,12 +172,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             Directory newEntry = new Directory(sourceEntry.FileName + "_copy", sourceEntry.FileAttribute, 0, sourceEntry.FileSize, destinationEntry);
             destinationEntry.DirectoryTable.Add(newEntry);
-            destinationEntry.WriteDirectory();
+            destinationEntry.WriteEntryToDisk();
 
 
-            sourceEntry.ReadDirectory();
+            sourceEntry.ReadEntryFromDisk();
             newEntry.DirectoryTable = sourceEntry.DirectoryTable;
-            newEntry.WriteDirectory();
+            newEntry.WriteEntryToDisk();
 
             Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
         }
