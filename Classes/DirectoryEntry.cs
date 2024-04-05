@@ -23,9 +23,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public Directory Parent { get; set; }
 
 
-
-
-
         public DirectoryEntry() { }
 
         public DirectoryEntry(string name, byte attribute, int cluster, int size)
@@ -102,6 +99,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void WriteBytesToDisk(List<byte> bytesToWrite)
         {
+            if(bytesToWrite.Count == 0) return;
+            AllocateFirstCluster();
             List<int> fatIndex = new List<int>();
             fatIndex.Add(this.FirstCluster); ClearFat();
             int totalBytes = bytesToWrite.Count;
