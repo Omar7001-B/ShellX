@@ -95,7 +95,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 CurrentDirectory.DirectoryTable.RemoveAt(index);
                 CurrentDirectory.WriteEntryToDisk();
-                directory.DeleteDirectory();
+                directory.DeleteEntryFromDisk();
                 Console.WriteLine($"Directory '{name}' deleted successfully.");
             }
             else
@@ -268,7 +268,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			if (index != -1)
             {
 				FileEntry entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
-				entry.ReadFile();
+				entry.ReadEntryFromDisk();
 				Console.WriteLine(entry.Content);
 			}
 			else
@@ -285,7 +285,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (CurrentDirectory.DirectoryTable[index] is FileEntry entry)
                 {
                     entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
-                    entry.DeleteFile();
+                    entry.DeleteEntryFromDisk();
                     Console.WriteLine($"File '{fileName}' deleted successfully.");
                 }
                 else

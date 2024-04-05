@@ -21,7 +21,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         { Parent = parent; }
 
 
-        public List<byte> ConvertContentToBytes()
+        public override List<byte> ConvertContentToBytes()
         {
             List<byte> contentBytes = new List<byte>();
             foreach (DirectoryEntry entry in DirectoryTable)
@@ -29,13 +29,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return contentBytes;
         }
 
-        public void WriteEntryToDisk()
-        {
-			List<byte> directoryBytes = ConvertContentToBytes();
-			WriteBytesToDisk(directoryBytes);
-		}
 
-        public void ConvertBytesToContent(List<byte> data)
+        public override void ConvertBytesToContent(List<byte> data)
         {
 			DirectoryTable.Clear();
 			int entryCount = data.Count / 32;
@@ -48,11 +43,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			// Remove empty entries
 			DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
 		}
-        public void ReadEntryFromDisk()
-        {
-           List<byte> entryBytes = ReadBytesFromDisk();
-		   ConvertBytesToContent(entryBytes);
-		}
 
         public DirectoryEntry GetActualType(DirectoryEntry entry)
         {
@@ -64,19 +54,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
-        public void DeleteDirectory()
-        {
-            ReadEntryFromDisk(); 
-            while(DirectoryTable.Count > 0)
-				if (DirectoryTable[0] is Directory directory)
-					directory.DeleteDirectory();
-
-            ClearFat();
-
-            if (Parent != null)
-                Parent.RemoveChild(this);
-        }
-
+		public override void DeleteEntryFromDisk()
+		{
+			ReadEntryFromDisk();
+			while (DirectoryTable.Count > 0)
+				DirectoryTable[0].DeleteEntryFromDisk();
+			base.DeleteEntryFromDisk();
+		}
+		
         public int Search(string name)
         {
             for (int i = 0; i < DirectoryTable.Count; i++)
