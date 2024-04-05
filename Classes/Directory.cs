@@ -46,12 +46,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void WriteEntryToDisk()
         {
 			List<byte> directoryBytes = ConvertContentToBytes();
-            if(directoryBytes.Count > 0)
-            {
-				AllocateFirstCluster();
-				WriteBytesToDisk(directoryBytes);
-				FatTable.writeFatTable();
-            }
+			WriteBytesToDisk(directoryBytes);
 		}
 
         public void ReadEntryFromDisk()
@@ -81,8 +76,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             if (Parent != null)
                 Parent.RemoveChild(this);
-
-			FatTable.writeFatTable();
         }
 
         public int Search(string name)
