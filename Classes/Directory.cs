@@ -110,6 +110,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 				Directory directory = new Directory(entry, this);
 				return directory;
 			}
+            else if(entry.FileAttribute == 0)
+            {
+
+                FileEntry file = new FileEntry(entry, this);
+                return file;
+            }
 			return entry;
 		}
 
