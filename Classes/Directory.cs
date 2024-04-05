@@ -152,7 +152,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             ReadDirectory();
             if(entry is Directory directory) directory.Parent = this;
-            if(Search(entry.FileName) != -1) DirectoryTable.Add(entry);
+            if(entry is FileEntry file) file.Parent = this;
+            if(Search(entry.FileName) == -1) DirectoryTable.Add(entry);
 			WriteDirectory();
 		}
 
