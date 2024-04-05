@@ -25,6 +25,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public DirectoryEntry() { }
 
+        // ---- Constructors ----
         public DirectoryEntry(string name, byte attribute, int cluster, int size)
         {
             FileName = FormateFileName(name, attribute);
@@ -43,6 +44,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         }
 
 
+        // ---- Meta Functions ----
         public byte[] MetaToByteArray()
         {
             byte[] data = new byte[32];
@@ -65,19 +67,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
-        // Abstract Functions
-        // General Functions
-        // public void ClearFat() { };
-        // public void AllocateFirstCluster() { };
-
-        // Read
-        // public void ReadEntryFromDisk() { }; (BIG)
-		// public void ConvertBytesToContent(byte[] data) { };
-
-        // Write
-        // public void WriteEntryToDisk() { }; (BIG)
-		// public List<byte> ConvertContentToBytes() { };
-
+        // ------ Read Functions --------    
+        public void ReadEntryFromDisk() 
+        { 
+           List<byte> entryBytes = ReadBytesFromDisk();
+		   ConvertBytesToContent(entryBytes);
+        }
         public List<byte> ReadBytesFromDisk()
         {
             List<byte> entryBytes = new List<byte>();
@@ -95,8 +90,23 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             return entryBytes;
         }
+        public virtual void ConvertBytesToContent(List<byte> data) 
+        {
+            Console.WriteLine("Bytes To Content from Parent");
+        }
 
 
+        // ------ Write Functions --------
+        public void WriteEntryToDisk()
+        {
+			List<byte> directoryBytes = ConvertContentToBytes();
+			WriteBytesToDisk(directoryBytes);
+		}
+		public virtual List<byte> ConvertContentToBytes() 
+        {
+            Console.WriteLine("Content To Bytes from Parent");
+            return new List<byte>();
+        }
         public void WriteBytesToDisk(List<byte> bytesToWrite)
         {
             if (bytesToWrite.Count > 0)
@@ -118,7 +128,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
         }
 
+        // ------ Delete Functions --------
+        public virtual void DeleteEntryFromDisk()
+        {
+			ClearFat();
+			if (Parent != null)
+            {
+				int index = Parent.Search(FileName);
+				if (index != -1)
+                    Parent.RemoveChild(this);
+			}
+		}
 
+        // ------ General Functions --------
         public void ClearFat() 
         {
             int currentIndex = FirstCluster;
@@ -149,7 +171,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
         }
 
-        public virtual void UpdateName(string name) // Function in parent class
+        public virtual void UpdateName(string name)
         {
 			FileName = FormateFileName(name, FileAttribute);
             Parent?.WriteEntryToDisk();
