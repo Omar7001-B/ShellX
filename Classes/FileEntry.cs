@@ -8,8 +8,12 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 {
 	internal class FileEntry : DirectoryEntry
 	{
-		//public Directory Parent;
-		public string Content;
+		private string _Content;
+		public string Content
+		{
+			get { ReadEntryFromDisk(); return _Content; } // Can  be Dangerous
+			set { _Content = value; }
+		}
 
 		public FileEntry() : base() { }
 		public FileEntry(string name, byte attribute, int cluster, int size, Directory parent)
