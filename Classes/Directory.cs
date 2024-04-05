@@ -8,8 +8,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 {
     public class Directory : DirectoryEntry
     {
+
         public List<DirectoryEntry> DirectoryTable { get; set; } = new List<DirectoryEntry>();
-        //public Directory Parent { get; set; }
 
         public Directory() : base() { }
 
