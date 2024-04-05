@@ -9,7 +9,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
     public class Directory : DirectoryEntry
     {
         public List<DirectoryEntry> DirectoryTable { get; set; } = new List<DirectoryEntry>();
-        public Directory Parent { get; set; }
+        //public Directory Parent { get; set; }
 
         public Directory() : base() { }
 
@@ -21,87 +21,44 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         { Parent = parent; }
 
 
-        public void ClearFat() 
+        public List<byte> ConvertContentToBytes()
         {
-            int currentIndex = FirstCluster;
-            while(currentIndex != -1 && currentIndex != 0)
+            List<byte> contentBytes = new List<byte>();
+            foreach (DirectoryEntry entry in DirectoryTable)
+                contentBytes.AddRange(entry.MetaToByteArray());
+            return contentBytes;
+        }
+
+        public void ConvertBytesToContent(List<byte> data)
+        {
+			DirectoryTable.Clear();
+			int entryCount = data.Count / 32;
+			for (int i = 0; i < entryCount; i++)
             {
-				int nextIndex = FatTable.getValue(currentIndex);
-				FatTable.setValue(currentIndex, 0);
-                VirtualDisk.writeBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
-				currentIndex = nextIndex;
+                byte[] entryData = data.Skip(i * 32).Take(32).ToArray();
+				DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
 			}
+
+			// Remove empty entries
+			DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
 		}
 
-        public void WriteDirectory()
+        public void WriteEntryToDisk()
         {
-            List<byte> directoryBytes = new List<byte>();
-			List<int> FatIndex  = new List<int>();
-
-            foreach (DirectoryEntry entry in DirectoryTable)
-                directoryBytes.AddRange(entry.ToByteArray());
-
-            int totalBytes = directoryBytes.Count;
-            int totalBlocks = ((totalBytes + 1023) / 1024);
-
-
-            if(this.FirstCluster == 0)
+			List<byte> directoryBytes = ConvertContentToBytes();
+            if(directoryBytes.Count > 0)
             {
-				this.FirstCluster = FatTable.getAvailableBlock();
-                FatTable.setValue(this.FirstCluster, -1);
-                if (Parent != null)
-                {
-                    if(Parent.Search(FileName) != -1)
-                        Parent.DirectoryTable[Parent.Search(FileName)] = this;
-                    else 
-                        Parent.DirectoryTable.Add(this);
-
-                    Parent?.WriteDirectory();
-                }
+				AllocateFirstCluster();
+				WriteBytesToDisk(directoryBytes);
+				FatTable.writeFatTable();
             }
+		}
 
-            FatIndex.Add(this.FirstCluster); ClearFat();
-
-            for(int i = 0; i < totalBlocks; i++)
-            {
-                int blockSize = Math.Min(1024, totalBytes - (i * 1024));
-                byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
-                if(i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
-                FatTable.setValue(FatIndex[i], -1);
-				if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
-                VirtualDisk.writeBlock(blockData, FatIndex[i]);
-            }
-
-            FatTable.writeFatTable();
-        }
-
-        public void ReadDirectory()
+        public void ReadEntryFromDisk()
         {
-            DirectoryTable.Clear();
-            List<byte> directoryBytes = new List<byte>();
-
-            int currentCluster = this.FirstCluster;
-            
-            if(currentCluster < 5  || FatTable.getValue(currentCluster) == 0)
-				return;
-
-            while (currentCluster != -1)
-            {
-                byte[] blockData = VirtualDisk.readBlock(currentCluster);
-                directoryBytes.AddRange(blockData);
-                currentCluster = FatTable.getValue(currentCluster);
-            }
-
-            int entryCount = directoryBytes.Count / 32;
-            for (int i = 0; i < entryCount; i++)
-            {
-                byte[] entryData = directoryBytes.Skip(i * 32).Take(32).ToArray();
-                DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
-            }
-
-            // Remove empty entries
-             DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
-        }
+           List<byte> entryBytes = ReadBytesFromDisk();
+		   ConvertBytesToContent(entryBytes);
+		}
 
         public DirectoryEntry GetActualType(DirectoryEntry entry)
         {
@@ -115,13 +72,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void DeleteDirectory()
         {
-            if (new string(FileName).Equals("root", StringComparison.OrdinalIgnoreCase))
-            {
-                Console.WriteLine("Cannot delete root directory.");
-                return;
-            }
-
-            ReadDirectory(); //Remove
+            ReadEntryFromDisk(); 
             while(DirectoryTable.Count > 0)
 				if (DirectoryTable[0] is Directory directory)
 					directory.DeleteDirectory();
@@ -132,7 +83,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Parent.RemoveChild(this);
 
 			FatTable.writeFatTable();
-            //Console.WriteLine("Directory deleted.");
         }
 
         public int Search(string name)
@@ -144,19 +94,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public void AddChild(DirectoryEntry entry)
         {
-            ReadDirectory();
+            ReadEntryFromDisk();
             if(entry is Directory directory) directory.Parent = this;
             if(entry is FileEntry file) file.Parent = this;
             if(Search(entry.FileName) == -1) DirectoryTable.Add(entry);
-			WriteDirectory();
+			WriteEntryToDisk();
 		}
 
         public void RemoveChild(DirectoryEntry entry)
         {
-			ReadDirectory();
+			ReadEntryFromDisk();
 			int index = Search(entry.FileName);
 			if (index != -1) DirectoryTable.RemoveAt(index);
-			WriteDirectory();
+			WriteEntryToDisk();
 		}
 
 
@@ -164,8 +114,84 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public override void UpdateName(string newName) // Function Update Name in Directory
         {
             base.UpdateName(newName);
-            Parent.WriteDirectory();
+            Parent.WriteEntryToDisk();
         }
     }
 
 }
+
+
+// Old Functions
+/*
+public void WriteEntryToDisk()
+{
+	List<byte> directoryBytes = new List<byte>();
+	List<int> FatIndex  = new List<int>();
+
+	foreach (DirectoryEntry entry in DirectoryTable)
+		directoryBytes.AddRange(entry.MetaToByteArray());
+
+	int totalBytes = directoryBytes.Count;
+	int totalBlocks = ((totalBytes + 1023) / 1024);
+
+
+	if(this.FirstCluster == 0)
+	{
+		this.FirstCluster = FatTable.getAvailableBlock();
+		FatTable.setValue(this.FirstCluster, -1);
+		if (Parent != null)
+		{
+			if(Parent.Search(FileName) != -1)
+				Parent.DirectoryTable[Parent.Search(FileName)] = this;
+			else 
+				Parent.DirectoryTable.Add(this);
+
+			Parent?.WriteEntryToDisk();
+		}
+	}
+
+	FatIndex.Add(this.FirstCluster); ClearFat();
+
+	for(int i = 0; i < totalBlocks; i++)
+	{
+		int blockSize = Math.Min(1024, totalBytes - (i * 1024));
+		byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
+		if(i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
+		FatTable.setValue(FatIndex[i], -1);
+		if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
+		VirtualDisk.writeBlock(blockData, FatIndex[i]);
+	}
+
+	FatTable.writeFatTable();
+}
+*/
+
+/*
+public void ReadEntryFromDisk()
+{
+	DirectoryTable.Clear();
+	List<byte> directoryBytes = new List<byte>();
+
+	int currentCluster = this.FirstCluster;
+	
+	if(currentCluster < 5  || FatTable.getValue(currentCluster) == 0)
+		return;
+
+	while (currentCluster != -1)
+	{
+		byte[] blockData = VirtualDisk.readBlock(currentCluster);
+		directoryBytes.AddRange(blockData);
+		currentCluster = FatTable.getValue(currentCluster);
+	}
+
+	int entryCount = directoryBytes.Count / 32;
+	for (int i = 0; i < entryCount; i++)
+	{
+		byte[] entryData = directoryBytes.Skip(i * 32).Take(32).ToArray();
+		DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
+	}
+
+	// Remove empty entries
+	 DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
+}
+*/
