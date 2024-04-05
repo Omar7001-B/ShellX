@@ -23,12 +23,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public FileSystem()
         {
             CurrentDirectory = new Directory("root", 1, 5, 1024, null);
-            if (!FatTable.isRootIntialized())
-            {
-                FatTable.setValue(CurrentDirectory.FirstCluster, -1);
-                FatTable.writeFatTable();
-            }
-
             ExportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Exports");
             ImportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Imports");
             if(!System.IO.Directory.Exists(ExportPath)) System.IO.Directory.CreateDirectory(ExportPath);
