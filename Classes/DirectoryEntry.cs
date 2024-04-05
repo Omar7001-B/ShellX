@@ -110,34 +110,31 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public void WriteBytesToDisk(List<byte> bytesToWrite)
         {
             if (bytesToWrite.Count > 0)
-            {
-                AllocateFirstCluster(); ClearFat();
-                List<int> fatIndex = new List<int>() { this.FirstCluster };
-                int totalBytes = bytesToWrite.Count;
-                int totalBlocks = (totalBytes + 1023) / 1024;
+                AllocateFirstCluster();
 
-                for (int i = 0; i < totalBlocks; i++)
-                {
-                    int blockSize = Math.Min(1024, totalBytes - (i * 1024));
-                    byte[] blockData = bytesToWrite.Skip(i * 1024).Take(blockSize).ToArray();
-                    if (i >= fatIndex.Count) fatIndex.Add(FatTable.getAvailableBlock());
-                    FatTable.setValue(fatIndex[i], -1);
-                    if (i > 0) FatTable.setValue(fatIndex[i - 1], fatIndex[i]);
-                    VirtualDisk.writeBlock(blockData, fatIndex[i]);
-                }
-            }
+			ClearFat();
+
+			List<int> fatIndex = new List<int>() { this.FirstCluster };
+			int totalBytes = bytesToWrite.Count;
+			int totalBlocks = (totalBytes + 1023) / 1024;
+
+			for (int i = 0; i < totalBlocks; i++)
+			{
+				int blockSize = Math.Min(1024, totalBytes - (i * 1024));
+				byte[] blockData = bytesToWrite.Skip(i * 1024).Take(blockSize).ToArray();
+				if (i >= fatIndex.Count) fatIndex.Add(FatTable.getAvailableBlock());
+				FatTable.setValue(fatIndex[i], -1);
+				if (i > 0) FatTable.setValue(fatIndex[i - 1], fatIndex[i]);
+				VirtualDisk.writeBlock(blockData, fatIndex[i]);
+			}
+            
         }
 
         // ------ Delete Functions --------
         public virtual void DeleteEntryFromDisk()
         {
 			ClearFat();
-			if (Parent != null)
-            {
-				int index = Parent.Search(FileName);
-				if (index != -1)
-                    Parent.RemoveChild(this);
-			}
+            Parent?.RemoveChild(this);
 		}
 
         // ------ General Functions --------
