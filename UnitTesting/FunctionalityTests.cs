@@ -39,7 +39,7 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
         {
             DirectoryEntry entry = new DirectoryEntry("mo.txt", 0, 2, 1024);
 
-            byte[] entryData = entry.ToByteArray();
+            byte[] entryData = entry.MetaToByteArray();
 
             Console.WriteLine("Directory Entry in bytes:");
             foreach (byte b in entryData)
@@ -48,7 +48,7 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
             }
             Console.WriteLine();
 
-            DirectoryEntry newEntry = new DirectoryEntry().FromByteArray(entryData);
+            DirectoryEntry newEntry = new DirectoryEntry();
 
             Console.WriteLine("\nNew Directory Entry Properties:");
             Console.WriteLine($"FileName: {newEntry.FileName}");
@@ -74,11 +74,11 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
             directory.DirectoryTable.Add(entry3);
 
             // Write the directory to the virtual disk
-            directory.WriteDirectory();
+            directory.WriteEntryToDisk();
 
             // Read the directory from the virtual disk
             Directory readDirectory = new Directory();
-            readDirectory.ReadDirectory();
+            readDirectory.ReadEntryFromDisk();
 
             // Search for a directory entry by name
             int index = readDirectory.Search("File1.txt");
