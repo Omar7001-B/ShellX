@@ -17,6 +17,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             set { _currentDirectory = value;  _currentDirectory?.ReadDirectory(); }
         }
 
+        public string ExportPath { get; set; }
+        public string ImportPath { get; set; }
+
         public FileSystem()
         {
             CurrentDirectory = new Directory("root", 1, 5, 1024, null);
@@ -25,6 +28,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 FatTable.setValue(CurrentDirectory.FirstCluster, -1);
                 FatTable.writeFatTable();
             }
+
+            ExportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Exports");
+            ImportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Imports");
+            if(!System.IO.Directory.Exists(ExportPath)) System.IO.Directory.CreateDirectory(ExportPath);
+            if(!System.IO.Directory.Exists(ImportPath)) System.IO.Directory.CreateDirectory(ImportPath);
         }
 
         public string GetCurrentDirectory()
@@ -286,6 +294,37 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
 				Console.WriteLine($"File '{fileName}' not found.");
 			}
+		}
+
+        public void ExportFile(string fileName)
+        {
+			int index = CurrentDirectory.Search(fileName);
+			if (index != -1)
+            {
+				FileEntry entry = (FileEntry)CurrentDirectory.DirectoryTable[index];
+                string content = entry.Content;
+                string filePath = System.IO.Path.Combine(ExportPath, fileName);
+                System.IO.File.WriteAllText(filePath, content);
+				Console.WriteLine($"File '{fileName}' exported successfully.");
+			}
+			else
+            {
+				Console.WriteLine($"File '{fileName}' not found.");
+			}
+		}
+
+        public void ImportFile(string fileName)
+        {
+			string filePath = System.IO.Path.Combine(ImportPath, fileName);
+			if (!System.IO.File.Exists(filePath))
+            {
+				Console.WriteLine($"File '{fileName}' not found.");
+				return;
+			}
+
+			string content = System.IO.File.ReadAllText(filePath);
+			WriteFile(fileName, content);
+			Console.WriteLine($"File '{fileName}' imported successfully.");
 		}
 
 

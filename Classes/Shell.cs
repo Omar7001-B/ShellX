@@ -36,8 +36,8 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"echo", new Command { Description  = "Displays text or variables and can be used to write or append to files", Action = Echo }},
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = Type }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = Del }},
-                {"import", new Command { Description  = "Import text file(s) from your computer.", Action = null }},
-                {"export", new Command { Description  = "Export text file(s) to your computer.", Action = null }},
+                {"import", new Command { Description  = "Import text file(s) from your computer.", Action = Import }},
+                {"export", new Command { Description  = "Export text file(s) to your computer.", Action = Export }},
 
                 // Debug
                 {"showfat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
@@ -267,6 +267,29 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
             fileSystem.DeleteFile(args[0]);
 		}
+
+        public static void Import(string[] args)
+        {
+			if (args.Length != 1)
+            {
+				Console.WriteLine("Usage: import <file>");
+				return;
+			}
+
+            fileSystem.ImportFile(args[0]);
+		}
+
+        public static void Export(string[] args)
+        {
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Usage: export <file>");
+				return;
+            }
+
+            fileSystem.ExportFile(args[0]);
+
+        }
 
     }
 
