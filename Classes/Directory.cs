@@ -105,19 +105,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public DirectoryEntry GetActualType(DirectoryEntry entry)
         {
-			if (entry.FileAttribute == 1)
+            return entry.FileAttribute switch
             {
-				Directory directory = new Directory(entry, this);
-				return directory;
-			}
-            else if(entry.FileAttribute == 0)
-            {
-
-                FileEntry file = new FileEntry(entry, this);
-                return file;
-            }
-			return entry;
-		}
+                1 => new Directory(entry, this),
+                0 => new FileEntry(entry, this),
+                _ => entry
+            };
+        }
 
         public void DeleteDirectory()
         {
