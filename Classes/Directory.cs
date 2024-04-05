@@ -28,7 +28,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
 				int nextIndex = FatTable.getValue(currentIndex);
 				FatTable.setValue(currentIndex, 0);
-                VirtualDisk.writeBlock(VirtualDisk.EmptyBlock, currentIndex);
+                VirtualDisk.writeBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
 				currentIndex = nextIndex;
 			}
 		}
@@ -142,15 +142,15 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             return -1;
         }
 
-        public void AddChild(Directory entry)
+        public void AddChild(DirectoryEntry entry)
         {
             ReadDirectory();
-            entry.Parent = this;
+            if(entry is Directory directory) directory.Parent = this;
             if(Search(entry.FileName) != -1) DirectoryTable.Add(entry);
 			WriteDirectory();
 		}
 
-        public void RemoveChild(Directory entry)
+        public void RemoveChild(DirectoryEntry entry)
         {
 			ReadDirectory();
 			int index = Search(entry.FileName);
