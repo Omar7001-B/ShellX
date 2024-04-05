@@ -72,11 +72,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			for (int i = 0; i < totalBlocks; i++)
 			{
 				int blockSize = Math.Min(1024, totalBytes - (i * 1024));
-				byte[] blockDae = fileBytes.Skip(i * 1024).Take(blockSize).ToArray();
+				byte[] blockData = fileBytes.Skip(i * 1024).Take(blockSize).ToArray();
 				if (i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
 				FatTable.setValue(FatIndex[i], -1);
 				if (i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
-				VirtualDisk.writeBlock(blockDae, FatIndex[i]);
+				VirtualDisk.writeBlock(blockData, FatIndex[i]);
 			}
 
 			FatTable.writeFatTable();
