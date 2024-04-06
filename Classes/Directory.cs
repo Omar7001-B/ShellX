@@ -21,6 +21,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         { Parent = parent; }
 
 
+		// ------------ Serialize (Write) Functions ------------
         public override List<byte> ConvertContentToBytes()
         {
             List<byte> contentBytes = new List<byte>();
@@ -30,6 +31,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         }
 
 
+		// ------------ Deserialize (Read) Functions ------------
         public override void ConvertBytesToContent(List<byte> data)
         {
 			DirectoryTable.Clear();
@@ -54,6 +56,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
+		// ------------ Delete Function ------------
 		public override void DeleteEntryFromDisk()
 		{
 			ReadEntryFromDisk();
@@ -61,19 +64,16 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 				DirectoryTable[0].DeleteEntryFromDisk();
 			base.DeleteEntryFromDisk();
 		}
-		
-        public int Search(string name)
-        {
-            for (int i = 0; i < DirectoryTable.Count; i++)
-                if (DirectoryTable[i].FileName == FormateFileName(name)) return i;
-            return -1;
-        }
 
-		public int Search(DirectoryEntry entry)
-		{
-			return Search(entry.FileName);
-		}
 
+		// ------------ Search Functions ------------
+		public int Search(string name) => DirectoryTable.FindIndex(entry => entry.FileName == FormateFileName(name));
+		public int Search(DirectoryEntry entry) => Search(entry.FileName);
+		public bool HasChild(string name) => Search(name) != -1;
+		public bool HasChild(DirectoryEntry entry) => HasChild(entry.FileName);
+
+
+		// ------------ Add/Remove Functions ------------
         public void AddChild(DirectoryEntry entry)
         {
             ReadEntryFromDisk();
