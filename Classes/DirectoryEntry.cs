@@ -128,6 +128,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
             
         }
+        // ------ Copy Functions --------
+        public virtual DirectoryEntry CopyEntry(Directory newParent)
+        {
+			return new DirectoryEntry(FileName, FileAttribute, FirstCluster, FileSize);
+		}
 
         // ------ Delete Functions --------
         public virtual void DeleteEntryFromDisk()
@@ -155,7 +160,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             {
                 this.FirstCluster = FatTable.getAvailableBlock();
                 FatTable.setValue(this.FirstCluster, -1);
-				Parent?.AddChild(this);
+				// Parent?.AddChild(this);
             }
         }
 

@@ -56,6 +56,17 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             };
         }
 
+
+		// ------------ Copy Function --------------
+		public override DirectoryEntry CopyEntry(Directory newParent)
+		{
+			Directory newDir = new Directory(FileName, FileAttribute, 0, FileSize, newParent);
+			foreach (DirectoryEntry entry in DirectoryTable)
+				newDir.AddChild(entry.CopyEntry(newDir));
+			return newDir;
+		}
+
+
 		// ------------ Delete Function ------------
 		public override void DeleteEntryFromDisk()
 		{
@@ -74,13 +85,28 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
 
 		// ------------ Add/Remove Functions ------------
-        public void AddChild(DirectoryEntry entry)
+        public void AddChild(DirectoryEntry entry, bool overrideExisting = true)
         {
             ReadEntryFromDisk();
 			int index = Search(entry);
 			entry.Parent = this;
-            if(index == -1) DirectoryTable.Add(entry);
-			else DirectoryTable[index] = entry;
+			if (index == -1) DirectoryTable.Add(entry);
+			else
+			{
+				if(overrideExisting)
+				{
+					DirectoryTable[index].DeleteEntryFromDisk();
+					DirectoryTable[index] = entry;
+				}
+				else
+				{
+					string name = entry.FileName;
+					int copyNumber = 1;
+					while (HasChild(name + $"({copyNumber})")) copyNumber++;
+					entry.FileName = name + $"({copyNumber})";
+					DirectoryTable.Add(entry);
+				}
+			}
 			WriteEntryToDisk();
 		}
 

@@ -33,6 +33,13 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			return Encoding.ASCII.GetBytes(Content).ToList();
 		}
 
+		public FileEntry CopyEntry(Directory newParent)
+		{
+			FileEntry newFile = new FileEntry(FileName, FileAttribute, FirstCluster, FileSize, newParent);
+			newFile.UpdateFile(Content);
+			return newFile;
+		}
+
 		public void AppendFile(string text)
 		{
 			ReadEntryFromDisk();
