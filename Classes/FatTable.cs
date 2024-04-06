@@ -101,6 +101,25 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			}
         }
 
+        public static List<int> getFullFatValue(int firstCluster)
+        {
+            List<int> result = new List<int>();
+            int current = firstCluster;
+            while (current != -1 && current != 0)
+            {
+				result.Add(current);
+				current = fat[current];
+			}
+            return result;
+        }
+
+        public static string getFatValueAsString(int firstCluster)
+        {
+            List<int> fatDx = FatTable.getFullFatValue(firstCluster);
+            string fatValue = (fatDx.Count > 0) ? "F[" + string.Join(" -> ", fatDx) + "]" : "";
+            return fatValue;
+		}
+
         public static int getAvailableBlock()
         {
             return Array.FindIndex(fat, block => block == 0);
