@@ -124,14 +124,14 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"   {freeSpace} bytes free");
         }
 
-		public void ListDirectoryTree()
+		public void ListDirectoryTree(bool showFat = false)
         {
 			ListDirectoryTree(CurrentDirectory, "");
 		}
         public void ListDirectoryTree(Directory directory, string indent)
         {
             directory.ReadEntryFromDisk();
-            Console.WriteLine($"{indent}{directory.FileName}");
+            Console.WriteLine($"{indent}{directory.FileName} {FatTable.getFatValueAsString(directory.FirstCluster)}");
             for(int i = 0; i < directory.DirectoryTable.Count; i++)
             {
                 string branch = (i == directory.DirectoryTable.Count - 1) ? "└──" : "├──";
@@ -141,7 +141,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 if (entry is Directory subDirectory)
 					ListDirectoryTree(subDirectory, $"{spaces}{branch} ");
 				else
-					Console.WriteLine($"{indent}{branch} {entry.FileName}");
+                {
+					Console.WriteLine($"{indent}{branch} {entry.FileName} {FatTable.getFatValueAsString(entry.FirstCluster)}");
+                }
 			}
         }
 
