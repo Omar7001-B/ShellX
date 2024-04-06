@@ -179,45 +179,66 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
         }
 
+        DirectoryEntry GetByPath(string path)
+        {
+			Directory current = CurrentDirectory;
+            List<string> folders = path.Split('/').ToList();
+
+			foreach (string folder in folders)
+            {
+				current.ReadEntryFromDisk();
+                if (folder == ".") continue;
+				else if (folder == "..")
+                {
+					if (current.Parent == null)
+                    {
+						Console.WriteLine("Access is denied.");
+						return null;
+					}
+					current = current.Parent;
+				}
+				else if (folder == "root")
+                {
+					Directory temp = current;
+					while (temp.Parent != null)
+						temp = temp.Parent;
+					current = temp;
+				}
+				else
+                {
+					int index = current.Search(folder);
+					if (index == -1)
+                    {
+						Console.WriteLine($"Folder '{folder}' not found.");
+						return null;
+					}
+
+					if (!(current.DirectoryTable[index] is Directory folderEntry))
+                    {
+                        if(folders.IndexOf(folder) == folders.Count - 1)
+							return current.DirectoryTable[index];
+						Console.WriteLine($"'{folder}' is not a folder.");
+						return null;
+					}
+
+					current = folderEntry;
+				}
+			}
+
+			return current;
+		}
+
         public void ChangeDirectory(string directory)
         {
-            if (directory == "..")
+            DirectoryEntry entry = GetByPath(directory);
+            if(entry is Directory folder)
             {
-                if (CurrentDirectory.Parent == null)
-                {
-                    Console.WriteLine("Already at the root directory.");
-                    return;
-                }
-
-                CurrentDirectory = CurrentDirectory.Parent;
-                Console.WriteLine("Navigated up to the parent directory.");
-            }
-            else if (directory == "root")
-            {
-                Directory temp = CurrentDirectory;
-                while (temp.Parent != null)
-                    temp = temp.Parent;
-                CurrentDirectory = temp;
-                Console.WriteLine("Navigated to the root directory.");
-            }
+				CurrentDirectory = folder;
+				Console.WriteLine($"Directory changed to '{folder.FileName}'.");
+			}
             else
             {
-                int index = CurrentDirectory.Search(directory);
-
-                if (index == -1)
-                {
-                    Console.WriteLine($"Folder '{directory}' not found.");
-                    return;
-                }
-
-                if (!(CurrentDirectory.DirectoryTable[index] is Directory folder))
-                {
-                    Console.WriteLine($"'{directory}' is not a folder.");
-                    return;
-                }
-
-                CurrentDirectory = folder;
-                Console.WriteLine($"Navigated to folder '{directory}'.");
+                Console.WriteLine($"'{directory}' is not a directory.");
             }
 		}
 
