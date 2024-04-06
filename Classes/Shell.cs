@@ -158,8 +158,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            if (FileSystem.ValidateName(args[0]))
-				fileSystem.DeleteFolder(args[0]);
+			fileSystem.DeleteFolder(args[0]);
         }
 
         public static void Rename(string[] args)
