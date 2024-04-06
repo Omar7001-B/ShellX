@@ -27,6 +27,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
+                {"tree", new Command { Description  = "List the tree of a directory.", Action = Tree }},
                 {"copy", new Command { Description  = "Copies one or more files to another location.", Action = Copy }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
@@ -150,6 +151,11 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         {
             fileSystem.ListDirectoryContents();
         }
+
+        public static void Tree(string[] args)
+        {
+			fileSystem.ListDirectoryTree();
+		}
         public static void Rd(string[] args)
         {
             if (args.Length != 1)

@@ -124,6 +124,29 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"   {freeSpace} bytes free");
         }
 
+		public void ListDirectoryTree()
+        {
+			ListDirectoryTree(CurrentDirectory, "");
+		}
+        public void ListDirectoryTree(Directory directory, string indent)
+        {
+            directory.ReadEntryFromDisk();
+            Console.WriteLine($"{indent}{directory.FileName}");
+            for(int i = 0; i < directory.DirectoryTable.Count; i++)
+            {
+                string branch = (i == directory.DirectoryTable.Count - 1) ? "└──" : "├──";
+                string spaces = indent.Replace("├", "│").Replace("└", " ").Replace("─", " ");
+
+                DirectoryEntry entry = directory.DirectoryTable[i];
+                if (entry is Directory subDirectory)
+					ListDirectoryTree(subDirectory, $"{spaces}{branch} ");
+				else
+					Console.WriteLine($"{indent}{branch} {entry.FileName}");
+			}
+        }
+
+
+
         public void RenameDirectory(string currentName, string newName)
         {
 
