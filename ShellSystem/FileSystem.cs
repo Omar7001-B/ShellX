@@ -181,6 +181,11 @@ namespace ShellX.ShellSystem
 			DirectoryEntry destEntry = GetByPath(destPath);
             if(destEntry is Directory directory)
             {
+                if (directory.Search(sourceEntry.FileName) != -1)
+                {
+					Console.WriteLine($"Directory '{sourceEntry.FileName}' already exists in '{destEntry.FileName}'.");
+					return;
+				}
                 sourceEntry.CopyEntry(directory);
 				Console.WriteLine($"Directory '{sourceEntry.FileName}' copied to '{destEntry.FileName}'.");
             }
@@ -190,11 +195,11 @@ namespace ShellX.ShellSystem
 			}
         }
 
-        public bool isChildOf(Directory parent, DirectoryEntry child)
+        public bool IsSubdirectory(Directory parent, DirectoryEntry child)
         {
 			if (child == null) return false;
 			if (child == parent) return true;
-			return isChildOf(parent, child.Parent);
+			return IsSubdirectory(parent, child.Parent);
 		}
 
         public void CutEntry(string sourcePath, string destPath)
@@ -204,22 +209,15 @@ namespace ShellX.ShellSystem
 
             DirectoryEntry destEntry = GetByPath(destPath);
 
-            if (isChildOf((Directory)sourceEntry, destEntry))
+            if (IsSubdirectory((Directory)sourceEntry, destEntry)) // check if destination is a child of source
             {
 				Console.WriteLine("Cannot move a directory into its child.");
-            }
-
-            if(sourcePath == destPath)
-            {
-                Console.WriteLine("Cannot move a directory into itself.");
-				return;
+                return;
             }
 
             if (destEntry is Directory directory)
             {
-                var temp = sourceEntry.CopyEntry(directory);
-                sourceEntry.DeleteEntryFromDisk();
-				directory.AddChild(temp, false);
+                sourceEntry.MoveEntry(directory);
 				Console.WriteLine($"Directory '{sourceEntry.FileName}' moved to '{destEntry.FileName}'.");
 			}
 			else
@@ -395,6 +393,27 @@ namespace ShellX.ShellSystem
 			string content = System.IO.File.ReadAllText(filePath);
 			WriteFile(fileName, content);
 			Console.WriteLine($"File '{fileName}' imported successfully.");
+		}
+
+        public void ShowMetaData(string[] args)
+        {
+            DirectoryEntry entry; 
+			if (args.Length == 0)
+            {
+                entry = CurrentDirectory;
+			}
+
+            else
+            {
+                entry = GetByPath(args[0]);
+                if(entry == null) return;
+            }
+
+			Console.WriteLine($"Name: {entry.FileName}");
+			Console.WriteLine($"Type: {(entry.FileAttribute == 1 ? "Directory" : "File")}");
+			Console.WriteLine($"Size: {entry.FileSize} bytes");
+			Console.WriteLine($"First Cluster: {FatTable.GetFatValueAsString(entry.FirstCluster)}");
+			Console.WriteLine($"Parent: {entry.Parent?.FileName ?? "root"}");
 		}
 
 
