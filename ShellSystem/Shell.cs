@@ -31,7 +31,6 @@ namespace ShellX.ShellSystem
                 // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
-                {"tree", new Command { Description  = "List the tree of a directory.", Action = Tree }},
                 {"copy", new Command { Description  = "Copies one or more files to another location.", Action = Copy }},
                 {"cut", new Command { Description  = "Cut one or more files to another location.", Action = Cut }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
@@ -46,7 +45,9 @@ namespace ShellX.ShellSystem
                 {"export", new Command { Description  = "Export text file(s) to your computer.", Action = Export }},
 
                 // Debug
-                {"showfat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
+                {"meta", new Command { Description  = "Show meta data of a fiel", Action = ShowMeta }},
+                {"tree", new Command { Description  = "List the tree of a directory.", Action = Tree }},
+                {"fat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
                 {"mds", new Command { Description  = "Creates n directories.", Action = Mds }},
                 {"rds", new Command { Description  = "Removes n directories.", Action = Rds }},
 
@@ -238,6 +239,17 @@ namespace ShellX.ShellSystem
             else if(args.Length == 1)
                 FatTable.PrintFatTable(0, int.Parse(args[0]));
 		}
+        
+        public static void ShowMeta(string[] args)
+        {
+            if (args.Length == 1 || args.Length == 0)
+                fileSystem.ShowMetaData(args);
+            else
+            {
+                Console.WriteLine("Usage: showmeta <file>");
+                return;
+            }
+        }
 
         public static void Mds(string[] args)
         {
