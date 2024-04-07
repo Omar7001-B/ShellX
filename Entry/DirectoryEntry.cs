@@ -104,7 +104,7 @@ namespace ShellX.Entry
             ConvertContentToBytes(); // Virtual Function
             ClearFat(); AllocateFirstCluster();
             List<int> fatIndex = new List<int>() { FirstCluster };
-            int totalBytes = ContentBytes.Count;
+            int totalBytes = FileSize = ContentBytes.Count;
             int totalBlocks = (totalBytes + 1023) / 1024;
             for (int i = 0; i < totalBlocks; i++)
             {
