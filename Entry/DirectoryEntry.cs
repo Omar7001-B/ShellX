@@ -77,8 +77,8 @@ namespace ShellX.Entry
         // ------ Read Functions --------    
         public void ReadEntryFromDisk()
         {
+            if (FirstCluster == 0 || FatTable.GetValue(FirstCluster) == 0) return;
             int currentCluster = FirstCluster;
-            if (FatTable.GetValue(currentCluster) == 0) return;
 
             List<byte> entryBytes = new List<byte>();
             while (currentCluster != -1)
@@ -131,6 +131,14 @@ namespace ShellX.Entry
             return new DirectoryEntry(FileName, FileAttribute, 0, FileSize, newParent);
         }
 
+        // ------ Move Functions --------
+        public virtual void MoveEntry(Directory newParent)
+        {
+			Parent?.RemoveChild(this);
+			Parent = newParent;
+			Parent?.AddChild(this, false);
+		}
+
         // ------ Delete Functions --------
         public virtual void DeleteEntryFromDisk()
         {
@@ -157,7 +165,8 @@ namespace ShellX.Entry
             {
                 FirstCluster = FatTable.GetAvailableBlock();
                 FatTable.SetValue(FirstCluster, -1);
-                Parent?.AddChild(this);
+				Parent?.AddChild(this);
+				Parent?.WriteEntryToDisk();
             }
         }
 
