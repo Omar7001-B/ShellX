@@ -64,9 +64,9 @@ public void ClearFat()
 	int currentIndex = FirstCluster;
 	while (currentIndex != -1 && currentIndex != 0)
 	{
-		int nextIndex = FatTable.getValue(currentIndex);
-		FatTable.setValue(currentIndex, 0);
-		VirtualDisk.writeBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
+		int nextIndex = FatTable.GetValue(currentIndex);
+		FatTable.SetValue(currentIndex, 0);
+		VirtualDisk.WriteBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
 		currentIndex = nextIndex;
 	}
 }
@@ -82,8 +82,8 @@ public void WriteEntryToDisk()
 
 	if (this.FirstCluster == 0)
 	{
-		this.FirstCluster = FatTable.getAvailableBlock();
-		FatTable.setValue(this.FirstCluster, -1);
+		this.FirstCluster = FatTable.GetAvailableBlock();
+		FatTable.SetValue(this.FirstCluster, -1);
 		if (Parent != null)
 		{
 			if (Parent.Search(FileName) != -1)
@@ -101,13 +101,13 @@ public void WriteEntryToDisk()
 	{
 		int blockSize = Math.Min(1024, totalBytes - (i * 1024));
 		byte[] blockData = fileBytes.Skip(i * 1024).Take(blockSize).ToArray();
-		if (i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
-		FatTable.setValue(FatIndex[i], -1);
-		if (i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
-		VirtualDisk.writeBlock(blockData, FatIndex[i]);
+		if (i >= FatIndex.Count) FatIndex.Add(FatTable.GetAvailableBlock());
+		FatTable.SetValue(FatIndex[i], -1);
+		if (i > 0) FatTable.SetValue(FatIndex[i - 1], FatIndex[i]);
+		VirtualDisk.WriteBlock(blockData, FatIndex[i]);
 	}
 
-	FatTable.writeFatTable();
+	FatTable.WriteFatTable();
 }
 
 public void ReadEntryFromDisk()
@@ -116,9 +116,9 @@ public void ReadEntryFromDisk()
 	int currentIndex = FirstCluster;
 	while (currentIndex != -1 && currentIndex != 0)
 	{
-		byte[] blockData = VirtualDisk.readBlock(currentIndex);
+		byte[] blockData = VirtualDisk.ReadBlock(currentIndex);
 		Content += Encoding.ASCII.GetString(blockData);
-		currentIndex = FatTable.getValue(currentIndex);
+		currentIndex = FatTable.GetValue(currentIndex);
 	}
 
 	Content = Content.Trim('#');

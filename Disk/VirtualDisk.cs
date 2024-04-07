@@ -37,11 +37,11 @@ namespace ShellX.Disk
             }
             else
             {
-                FatTable.readFatTable();
+                FatTable.ReadFatTable();
             }
         }
 
-        public static void writeBlock(byte[] data, int index)
+        public static void WriteBlock(byte[] data, int index)
         {
             using (FileStream fs = new FileStream(DiskFileName, FileMode.Open))
             {
@@ -50,7 +50,7 @@ namespace ShellX.Disk
             }
         }
 
-        public static byte[] readBlock(int index)
+        public static byte[] ReadBlock(int index)
         {
             byte[] buffer = new byte[1024];
             using (FileStream fs = new FileStream(DiskFileName, FileMode.Open))

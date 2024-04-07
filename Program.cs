@@ -13,7 +13,7 @@ namespace ShellX
         static void Main(string[] args)
         {
             VirtualDisk.Initialize(); // Already in ShellSystem.Run()
-            //FatTable.printFatTable(0, 21);
+            //FatTable.PrintFatTable(0, 21);
             Shell.Run();
         }
     }

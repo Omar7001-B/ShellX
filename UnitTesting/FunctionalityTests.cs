@@ -25,17 +25,17 @@ namespace ShellX.UnitTesting
             Console.WriteLine("Virtual Disk initialized.");
 
             Console.WriteLine("\nPrinting FAT Table:");
-            FatTable.printFatTable();
+            FatTable.PrintFatTable();
 
             Console.WriteLine("\nTesting Reading/Writing Blocks:");
             byte[] testData = new byte[1024];
             Array.Fill(testData, (byte)'X');
 
             Console.WriteLine("Writing test data to block 5...");
-            VirtualDisk.writeBlock(testData, 7);
+            VirtualDisk.WriteBlock(testData, 7);
 
             Console.WriteLine("Reading data from block 5:");
-            byte[] readData = VirtualDisk.readBlock(7);
+            byte[] readData = VirtualDisk.ReadBlock(7);
             Console.WriteLine(System.Text.Encoding.ASCII.GetString(readData));
 
             Console.WriteLine("\nTesting complete.");

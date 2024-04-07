@@ -233,10 +233,10 @@ namespace ShellX.ShellSystem
         public static void ShowFat(string[] args)
         {
             if(args.Length == 0)
-				FatTable.printFatTable(0, 10);
+				FatTable.PrintFatTable(0, 10);
 
             else if(args.Length == 1)
-                FatTable.printFatTable(0, int.Parse(args[0]));
+                FatTable.PrintFatTable(0, int.Parse(args[0]));
 		}
 
         public static void Mds(string[] args)

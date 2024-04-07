@@ -134,8 +134,8 @@ public void WriteEntryToDisk()
 
 	if(this.FirstCluster == 0)
 	{
-		this.FirstCluster = FatTable.getAvailableBlock();
-		FatTable.setValue(this.FirstCluster, -1);
+		this.FirstCluster = FatTable.GetAvailableBlock();
+		FatTable.SetValue(this.FirstCluster, -1);
 		if (Parent != null)
 		{
 			if(Parent.Search(FileName) != -1)
@@ -153,13 +153,13 @@ public void WriteEntryToDisk()
 	{
 		int blockSize = Math.Min(1024, totalBytes - (i * 1024));
 		byte[] blockData = directoryBytes.Skip(i * 1024).Take(blockSize).ToArray();
-		if(i >= FatIndex.Count) FatIndex.Add(FatTable.getAvailableBlock());
-		FatTable.setValue(FatIndex[i], -1);
-		if(i > 0) FatTable.setValue(FatIndex[i - 1], FatIndex[i]);
-		VirtualDisk.writeBlock(blockData, FatIndex[i]);
+		if(i >= FatIndex.Count) FatIndex.Add(FatTable.GetAvailableBlock());
+		FatTable.SetValue(FatIndex[i], -1);
+		if(i > 0) FatTable.SetValue(FatIndex[i - 1], FatIndex[i]);
+		VirtualDisk.WriteBlock(blockData, FatIndex[i]);
 	}
 
-	FatTable.writeFatTable();
+	FatTable.WriteFatTable();
 }
 */
 
@@ -171,14 +171,14 @@ public void ReadEntryFromDisk()
 
 	int currentCluster = this.FirstCluster;
 	
-	if(currentCluster < 5  || FatTable.getValue(currentCluster) == 0)
+	if(currentCluster < 5  || FatTable.GetValue(currentCluster) == 0)
 		return;
 
 	while (currentCluster != -1)
 	{
-		byte[] blockData = VirtualDisk.readBlock(currentCluster);
+		byte[] blockData = VirtualDisk.ReadBlock(currentCluster);
 		directoryBytes.AddRange(blockData);
-		currentCluster = FatTable.getValue(currentCluster);
+		currentCluster = FatTable.GetValue(currentCluster);
 	}
 
 	int entryCount = directoryBytes.Count / 32;

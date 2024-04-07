@@ -132,7 +132,7 @@ namespace ShellX.ShellSystem
         public void ListDirectoryTree(Directory directory, string indent)
         {
             directory.ReadEntryFromDisk();
-            Console.WriteLine($"{indent}{directory.FileName} {FatTable.getFatValueAsString(directory.FirstCluster)}");
+            Console.WriteLine($"{indent}{directory.FileName} {FatTable.GetFatValueAsString(directory.FirstCluster)}");
             for(int i = 0; i < directory.DirectoryTable.Count; i++)
             {
                 string branch = (i == directory.DirectoryTable.Count - 1) ? "└──" : "├──";
@@ -143,7 +143,7 @@ namespace ShellX.ShellSystem
 					ListDirectoryTree(subDirectory, $"{spaces}{branch} ");
 				else
                 {
-					Console.WriteLine($"{spaces}{branch} {entry.FileName} {FatTable.getFatValueAsString(entry.FirstCluster)}");
+					Console.WriteLine($"{spaces}{branch} {entry.FileName} {FatTable.GetFatValueAsString(entry.FirstCluster)}");
                 }
 			}
         }

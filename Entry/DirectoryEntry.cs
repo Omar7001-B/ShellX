@@ -85,14 +85,14 @@ namespace ShellX.Entry
             List<byte> entryBytes = new List<byte>();
             int currentCluster = FirstCluster;
 
-            if (currentCluster < 5 || FatTable.getValue(currentCluster) == 0)
+            if (currentCluster < 5 || FatTable.GetValue(currentCluster) == 0)
                 return entryBytes;
 
             while (currentCluster != -1)
             {
-                byte[] blockData = VirtualDisk.readBlock(currentCluster);
+                byte[] blockData = VirtualDisk.ReadBlock(currentCluster);
                 entryBytes.AddRange(blockData);
-                currentCluster = FatTable.getValue(currentCluster);
+                currentCluster = FatTable.GetValue(currentCluster);
             }
 
             return entryBytes;
@@ -127,10 +127,10 @@ namespace ShellX.Entry
                 {
                     int blockSize = Math.Min(1024, totalBytes - i * 1024);
                     byte[] blockData = bytesToWrite.Skip(i * 1024).Take(blockSize).ToArray();
-                    if (i >= fatIndex.Count) fatIndex.Add(FatTable.getAvailableBlock());
-                    FatTable.setValue(fatIndex[i], -1);
-                    if (i > 0) FatTable.setValue(fatIndex[i - 1], fatIndex[i]);
-                    VirtualDisk.writeBlock(blockData, fatIndex[i]);
+                    if (i >= fatIndex.Count) fatIndex.Add(FatTable.GetAvailableBlock());
+                    FatTable.SetValue(fatIndex[i], -1);
+                    if (i > 0) FatTable.SetValue(fatIndex[i - 1], fatIndex[i]);
+                    VirtualDisk.WriteBlock(blockData, fatIndex[i]);
                 }
             }
 
@@ -154,9 +154,9 @@ namespace ShellX.Entry
             int currentIndex = FirstCluster;
             while (currentIndex != -1 && currentIndex != 0)
             {
-                int nextIndex = FatTable.getValue(currentIndex);
-                FatTable.setValue(currentIndex, 0);
-                VirtualDisk.writeBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
+                int nextIndex = FatTable.GetValue(currentIndex);
+                FatTable.SetValue(currentIndex, 0);
+                VirtualDisk.WriteBlock(VirtualDisk.GetEmptyBlock('#'), currentIndex);
                 currentIndex = nextIndex;
             }
         }
@@ -165,8 +165,8 @@ namespace ShellX.Entry
         {
             if (FirstCluster == 0)
             {
-                FirstCluster = FatTable.getAvailableBlock();
-                FatTable.setValue(FirstCluster, -1);
+                FirstCluster = FatTable.GetAvailableBlock();
+                FatTable.SetValue(FirstCluster, -1);
                 Parent?.AddChild(this);
             }
         }

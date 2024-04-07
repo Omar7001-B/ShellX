@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ShellX.Disk
+﻿namespace ShellX.Disk
 {
-    public static class FatTable
+	public static class FatTable
 	{
 	    private const int NumberOfBlocks = 1024;
         private static int[] fat = new int[NumberOfBlocks];
@@ -21,10 +15,10 @@ namespace ShellX.Disk
             fat[4] = -1;
 
             Array.Fill(fat, 0, 5, 1019); // Data Blocks
-			writeFatTable();
+			WriteFatTable();
         }
 
-        public static void writeFatTable()
+        public static void WriteFatTable()
         {
             byte[] fatBytes = new byte[NumberOfBlocks * 4];
 			Buffer.BlockCopy(fat, 0, fatBytes, 0, fatBytes.Length);
@@ -35,7 +29,7 @@ namespace ShellX.Disk
             }
         }
 
-        public static void readFatTable()
+        public static void ReadFatTable()
         {
             byte[] fatBytes = new byte[NumberOfBlocks * 4];
 
@@ -48,14 +42,7 @@ namespace ShellX.Disk
             Buffer.BlockCopy(fatBytes, 0, fat, 0, fatBytes.Length);
         }
 
-        // Make fucntion to check if there is root block at fat[5]
-
-        public static bool isRootIntialized()
-        {
-			return fat[5] != 0;
-		}
-
-        public static void printFatTable(int start = 0, int end = 1024)
+        public static void PrintFatTable(int start = 0, int end = 1024)
         {
             Dictionary<int, List<int>> blocks = new Dictionary<int, List<int>>();
             List<int> visited = new List<int>();
@@ -101,7 +88,7 @@ namespace ShellX.Disk
 			}
         }
 
-        public static List<int> getFullFatValue(int firstCluster)
+        public static List<int> GetFullFatValue(int firstCluster)
         {
             List<int> result = new List<int>();
             int current = firstCluster;
@@ -113,19 +100,19 @@ namespace ShellX.Disk
             return result;
         }
 
-        public static string getFatValueAsString(int firstCluster)
+        public static string GetFatValueAsString(int firstCluster)
         {
-            List<int> fatDx = FatTable.getFullFatValue(firstCluster);
+            List<int> fatDx = FatTable.GetFullFatValue(firstCluster);
             string fatValue = (fatDx.Count > 0) ? "[" + string.Join(" -> ", fatDx) + "]" : "";
             return fatValue;
 		}
 
-        public static int getAvailableBlock()
+        public static int GetAvailableBlock()
         {
             return Array.FindIndex(fat, block => block == 0);
         }
 
-        public static int getValue(int index)
+        public static int GetValue(int index)
         {
             if(index == fat[index])
                 Console.WriteLine($"Infinite loop detected at fat[{index}] = {fat[index]}");
@@ -133,7 +120,7 @@ namespace ShellX.Disk
             return fat[index];
         }
 
-        public static void setValue(int index, int value)
+        public static void SetValue(int index, int value)
         {
             if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4)
 				Console.WriteLine($"Cannot write to reserved block fat[{index}]={fat[index]}");
@@ -142,17 +129,17 @@ namespace ShellX.Disk
 				Console.WriteLine($"Cannot write to itself, this would lead to inf fat[{index}]");
 
             fat[index] = value;
-            writeFatTable();
+            WriteFatTable();
         }
 
-        public static int getNumberOfFreeBlocks()
+        public static int GetNumberOfFreeBlocks()
         {
             return fat.Count(block => block == 0);
         }
 
-        public static int getFreeSpace()
+        public static int GetFreeSpace()
         {
-            return getNumberOfFreeBlocks() * 1024;
+            return GetNumberOfFreeBlocks() * 1024;
         }
 	}
 }
