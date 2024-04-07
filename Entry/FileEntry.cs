@@ -11,14 +11,14 @@ namespace ShellX.Entry
         public string Content { get; private set; }
         public FileEntry(string name, Directory parent) : base(name, 0, 0, 0, parent) { Content = ""; }
         public FileEntry(DirectoryEntry entry, Directory parent) : base(entry.FileName, entry.FileAttribute, entry.FirstCluster, entry.FileSize, parent) { Content = ""; }
-        public override void ConvertBytesToContent(List<byte> data)
+        public override void ConvertBytesToContent()
         {
-            Content = Encoding.ASCII.GetString(data.ToArray()).Trim('#');
+            Content = Encoding.ASCII.GetString(ContentBytes.ToArray()).Trim('#');
         }
 
-        public override List<byte> ConvertContentToBytes()
+        public override void ConvertContentToBytes()
         {
-            return Encoding.ASCII.GetBytes(Content).ToList();
+            ContentBytes = Encoding.ASCII.GetBytes(Content).ToList();
         }
 
         public override FileEntry CopyEntry(Directory newParent)
@@ -26,7 +26,6 @@ namespace ShellX.Entry
             ReadEntryFromDisk();
             FileEntry newFile = new FileEntry(FileName, newParent);
             newFile.UpdateFile(Content);
-			// newParent?.AddChild(newFile, false); // Already in the WriteEntryToDisk
             return newFile;
         }
 
