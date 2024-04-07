@@ -107,39 +107,10 @@
             return fatValue;
 		}
 
-        public static int GetAvailableBlock()
-        {
-            return Array.FindIndex(fat, block => block == 0);
-        }
-
-        public static int GetValue(int index)
-        {
-            if(index == fat[index])
-                Console.WriteLine($"Infinite loop detected at fat[{index}] = {fat[index]}");
-
-            return fat[index];
-        }
-
-        public static void SetValue(int index, int value)
-        {
-            if(index == 0 || index == 1 || index == 2 || index == 3 || index == 4)
-				Console.WriteLine($"Cannot write to reserved block fat[{index}]={fat[index]}");
-
-            if(index == value)
-				Console.WriteLine($"Cannot write to itself, this would lead to inf fat[{index}]");
-
-            fat[index] = value;
-            WriteFatTable();
-        }
-
-        public static int GetNumberOfFreeBlocks()
-        {
-            return fat.Count(block => block == 0);
-        }
-
-        public static int GetFreeSpace()
-        {
-            return GetNumberOfFreeBlocks() * 1024;
-        }
+        public static int GetAvailableBlock() { return Array.FindIndex(fat, block => block == 0); }
+        public static int GetValue(int index) { return fat[index]; }
+        public static void SetValue(int index, int value) { fat[index] = value; WriteFatTable(); }
+        public static int GetNumberOfFreeBlocks() { return fat.Count(block => block == 0); }
+        public static int GetFreeSpace() { return GetNumberOfFreeBlocks() * 1024; }
 	}
 }
