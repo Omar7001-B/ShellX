@@ -56,12 +56,11 @@ namespace ShellX.Entry
         {
             ReadEntryFromDisk();
             Directory newDir = new Directory(FileName, newParent);
-            foreach (DirectoryEntry entry in DirectoryTable)
-                newDir.AddChild(entry.CopyEntry(newDir));
-            WriteEntryToDisk();
+            foreach (DirectoryEntry entry in DirectoryTable) entry.CopyEntry(newDir);
+            newDir.WriteEntryToDisk();
+            // newParent.AddChild(newDir, false); // Already in the WriteEntryToDisk
             return newDir;
         }
-
 
         // ------------ Delete Function ------------
         public override void DeleteEntryFromDisk()
@@ -83,6 +82,7 @@ namespace ShellX.Entry
         // ------------ Add/Remove Functions ------------
         public void AddChild(DirectoryEntry entry, bool overrideExisting = true)
         {
+            ReadEntryFromDisk();
             int index = Search(entry);
             entry.Parent = this;
             if (index == -1) DirectoryTable.Add(entry);
@@ -90,9 +90,9 @@ namespace ShellX.Entry
             {
                 if (overrideExisting)
                 {
-                    DirectoryTable[index].ClearFat();
+                    DirectoryTable[index].DeleteEntryFromDisk();
                     entry.WriteEntryToDisk();
-                    DirectoryTable[index] = entry;
+                    DirectoryTable.Add(entry);
                 }
                 else
                 {
