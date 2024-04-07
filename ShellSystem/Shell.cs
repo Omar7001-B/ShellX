@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Simple_Shell_And_File_System__FAT_.Classes;
+using Simple_Shell_And_File_System__FAT_;
+using VirtualDisk = Simple_Shell_And_File_System__FAT_.Disk.VirtualDisk;
+using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
+using FileSystem = Simple_Shell_And_File_System__FAT_.ShellSystem.FileSystem;
 using Simple_Shell_And_File_System__FAT_.UnitTesting;
 
-namespace Simple_Shell_And_File_System__FAT_.Classes
+
+namespace Simple_Shell_And_File_System__FAT_.ShellSystem
 {
     public class Command
     {
@@ -29,6 +33,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
                 {"tree", new Command { Description  = "List the tree of a directory.", Action = Tree }},
                 {"copy", new Command { Description  = "Copies one or more files to another location.", Action = Copy }},
+                {"cut", new Command { Description  = "Cut one or more files to another location.", Action = Cut }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
@@ -111,6 +116,30 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
         }
 
+        public static void HandleCmd(string[] args, string usage, Action<string[]> action)
+        {
+            if (args.Length != 1)
+            {
+                Console.WriteLine($"Usage: {usage}");
+                return;
+            }
+
+            action(args);
+        }
+
+        public static void HandleCmd(string[] args, string usage, Action<string[], string[]> action)
+        {
+            if (args.Length != 2)
+            {
+                Console.WriteLine($"Usage: {usage}");
+                return;
+            }
+
+            action(args.Take(1).ToArray(), args.Skip(1).ToArray());
+        }
+
+
+
 
         public static void Cls(string[] args)
         {
@@ -186,8 +215,19 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 return;
             }
 
-            fileSystem.CopyDirectory(args[0], args[1]);
+            fileSystem.CopyEntry(args[0], args[1]);
         }
+
+        public static void Cut(string[] args)
+        {
+			if (args.Length != 2)
+            {
+				Console.WriteLine("Usage: cut <source_directory> <destination_directory>");
+				return;
+			}
+
+            fileSystem.CutEntry(args[0], args[1]);
+		}
 
         // Debug Part
         public static void ShowFat(string[] args)
@@ -292,7 +332,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
 
             fileSystem.ExportFile(args[0]);
-
         }
 
     }

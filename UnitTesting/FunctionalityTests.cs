@@ -1,14 +1,20 @@
-﻿using Simple_Shell_And_File_System__FAT_.Classes;
+﻿using Simple_Shell_And_File_System__FAT_.Disk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Directory = Simple_Shell_And_File_System__FAT_.Classes.Directory;
+using Directory = Simple_Shell_And_File_System__FAT_.Entry.Directory;
+using DirectoryEntry = Simple_Shell_And_File_System__FAT_.Entry.DirectoryEntry;
+using FileEntry = Simple_Shell_And_File_System__FAT_.Entry.FileEntry;
+using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
+using VirtualDisk = Simple_Shell_And_File_System__FAT_.Disk.VirtualDisk;
+using Shell = Simple_Shell_And_File_System__FAT_.ShellSystem.Shell;
+
 
 namespace Simple_Shell_And_File_System__FAT_.UnitTesting
 {
-	public class FunctionalityTests
+    public class FunctionalityTests
 	{
         public static void TestingTheVirtualDisk()
         {
@@ -35,72 +41,12 @@ namespace Simple_Shell_And_File_System__FAT_.UnitTesting
             Console.WriteLine("\nTesting complete.");
         }
 
-        public static void TestingTheDirectoryEntry()
-        {
-            DirectoryEntry entry = new DirectoryEntry("mo.txt", 0, 2, 1024);
-
-            byte[] entryData = entry.MetaToByteArray();
-
-            Console.WriteLine("Directory Entry in bytes:");
-            foreach (byte b in entryData)
-            {
-                Console.Write($"{b:x2} "); // Display bytes in hexadecimal format
-            }
-            Console.WriteLine();
-
-            DirectoryEntry newEntry = new DirectoryEntry();
-
-            Console.WriteLine("\nNew Directory Entry Properties:");
-            Console.WriteLine($"FileName: {newEntry.FileName}");
-            Console.WriteLine($"File Attribute: {newEntry.FileAttribute}");
-            Console.WriteLine($"First Cluster: {newEntry.FirstCluster}");
-            Console.WriteLine($"File Size: {newEntry.FileSize}");
-		}
-        public static void TestDirectory()
-        {
-            // Create a directory entry to serve as the parent directory
-            Directory parentEntry = new Directory("ParentDir", 0, 0, 0, null);
-
-			// Create a directory instance
-			Directory directory = new Directory("TestDir", 0, 0, 0, parentEntry);
-
-            // Add some directory entries to the directory table
-            DirectoryEntry entry1 = new DirectoryEntry("File1.txt", 0, 0, 1024);
-            DirectoryEntry entry2 = new DirectoryEntry("File2.txt", 0, 0, 2048);
-            DirectoryEntry entry3 = new DirectoryEntry("SubDir", 0, 0, 0);
-
-            directory.DirectoryTable.Add(entry1);
-            directory.DirectoryTable.Add(entry2);
-            directory.DirectoryTable.Add(entry3);
-
-            // Write the directory to the virtual disk
-            directory.WriteEntryToDisk();
-
-            // Read the directory from the virtual disk
-            Directory readDirectory = new Directory();
-            readDirectory.ReadEntryFromDisk();
-
-            // Search for a directory entry by name
-            int index = readDirectory.Search("File1.txt");
-
-            // Output the result of the search
-            if (index != -1)
-            {
-                Console.WriteLine($"Found at index: {index}");
-                Console.WriteLine($"FileName: {new string(readDirectory.DirectoryTable[index].FileName)}");
-            }
-            else
-            {
-                Console.WriteLine("File not found.");
-            }
-        }
-
         public static void CreateDirecotries(int n)
         {
             for(int i = 0; i < n; i++)
             {
                 string[] folder = new string[]{ $"Folder{i}" };
-                Shell.Md(folder);
+				Shell.Md(folder);
 			}
         }
 

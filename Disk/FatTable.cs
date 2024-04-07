@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simple_Shell_And_File_System__FAT_.Classes
+namespace Simple_Shell_And_File_System__FAT_.Disk
 {
-	public static class FatTable
+    public static class FatTable
 	{
 	    private const int NumberOfBlocks = 1024;
         private static int[] fat = new int[NumberOfBlocks];
@@ -116,7 +116,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
         public static string getFatValueAsString(int firstCluster)
         {
             List<int> fatDx = FatTable.getFullFatValue(firstCluster);
-            string fatValue = (fatDx.Count > 0) ? "F[" + string.Join(" -> ", fatDx) + "]" : "";
+            string fatValue = (fatDx.Count > 0) ? "[" + string.Join(" -> ", fatDx) + "]" : "";
             return fatValue;
 		}
 

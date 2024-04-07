@@ -4,52 +4,46 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simple_Shell_And_File_System__FAT_.Classes
+namespace Simple_Shell_And_File_System__FAT_.Entry
 {
-	internal class FileEntry : DirectoryEntry
-	{
-		public string Content { get; set; }
+    internal class FileEntry : DirectoryEntry
+    {
+        public string Content { get; private set; }
+        public FileEntry(string name, Directory parent) : base(name, 0, 0, 0, parent) { Content = ""; }
+        public FileEntry(DirectoryEntry entry, Directory parent) : base(entry.FileName, entry.FileAttribute, entry.FirstCluster, entry.FileSize, parent) { Content = ""; }
+        public override void ConvertBytesToContent(List<byte> data)
+        {
+            Content = Encoding.ASCII.GetString(data.ToArray()).Trim('#');
+        }
 
-		public FileEntry() : base() { }
-		public FileEntry(string name, byte attribute, int cluster, int size, Directory parent)
-			: base(name, attribute, cluster, size) { Parent = parent; }
+        public override List<byte> ConvertContentToBytes()
+        {
+            return Encoding.ASCII.GetBytes(Content).ToList();
+        }
 
-        public FileEntry(DirectoryEntry entry, Directory parent = null)
-                : base(entry.FileName, entry.FileAttribute, entry.FirstCluster, entry.FileSize)
-        { Parent = parent; }
+        public override FileEntry CopyEntry(Directory newParent)
+        {
+            ReadEntryFromDisk();
+            FileEntry newFile = new FileEntry(FileName, newParent);
+            newFile.UpdateFile(Content);
+            return newFile;
+        }
 
-		public override void ConvertBytesToContent(List<byte> data)
-		{
-			Content = Encoding.ASCII.GetString(data.ToArray()).Trim('#');
-		}
+        public void AppendFile(string text)
+        {
+            ReadEntryFromDisk();
+            Content += text;
+            WriteEntryToDisk();
+        }
 
-		public override List<byte> ConvertContentToBytes()
-		{
-			return Encoding.ASCII.GetBytes(Content).ToList();
-		}
+        public void UpdateFile(string text)
+        {
+            ReadEntryFromDisk();
+            Content = text;
+            WriteEntryToDisk();
+        }
 
-		public FileEntry CopyEntry(Directory newParent)
-		{
-			FileEntry newFile = new FileEntry(FileName, FileAttribute, FirstCluster, FileSize, newParent);
-			newFile.UpdateFile(Content);
-			return newFile;
-		}
-
-		public void AppendFile(string text)
-		{
-			ReadEntryFromDisk();
-			Content += text;
-			WriteEntryToDisk();
-		}
-
-		public void UpdateFile(string text)
-		{
-			ReadEntryFromDisk();
-			Content = text;
-			WriteEntryToDisk();
-		}
-
-	}
+    }
 }
 
 

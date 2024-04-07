@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Simple_Shell_And_File_System__FAT_.Disk;
+using Simple_Shell_And_File_System__FAT_.Entry;
+using Directory = Simple_Shell_And_File_System__FAT_.Entry.Directory;
 
-namespace Simple_Shell_And_File_System__FAT_.Classes
+namespace Simple_Shell_And_File_System__FAT_.ShellSystem
 {
     public class FileSystem
     {
@@ -22,7 +25,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
         public FileSystem()
         {
-            CurrentDirectory = new Directory("root", 1, 5, 1024, null);
+            CurrentDirectory = new Directory("root", null);
+            CurrentDirectory.FirstCluster = 5;
+            CurrentDirectory.ReadEntryFromDisk();
             ExportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Exports");
             ImportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Imports");
             if(!System.IO.Directory.Exists(ExportPath)) System.IO.Directory.CreateDirectory(ExportPath);
@@ -61,9 +66,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
                 Console.WriteLine($"Folder '{DirectoryEntry.FormateFileName(folderName)}' already exists.");
                 return;
             }
-            Directory newFolder = new Directory(folderName, 1, 0, 0, CurrentDirectory);
-            CurrentDirectory.DirectoryTable.Add(newFolder);
-            CurrentDirectory.WriteEntryToDisk();
+            CurrentDirectory.AddChild(new Directory(folderName, CurrentDirectory));
             Console.WriteLine($"Folder '{folderName}' created successfully.");
         }
 
@@ -87,8 +90,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             DirectoryEntry entry = CurrentDirectory.DirectoryTable[index];
             if (entry is Directory directory)
             {
-                CurrentDirectory.DirectoryTable.RemoveAt(index);
-                CurrentDirectory.WriteEntryToDisk();
                 directory.DeleteEntryFromDisk();
                 Console.WriteLine($"Directory '{name}' deleted successfully.");
             }
@@ -142,7 +143,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 					ListDirectoryTree(subDirectory, $"{spaces}{branch} ");
 				else
                 {
-					Console.WriteLine($"{indent}{branch} {entry.FileName} {FatTable.getFatValueAsString(entry.FirstCluster)}");
+					Console.WriteLine($"{spaces}{branch} {entry.FileName} {FatTable.getFatValueAsString(entry.FirstCluster)}");
                 }
 			}
         }
@@ -172,37 +173,63 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             Console.WriteLine($"Directory '{currentName}' renamed to '{newName}'.");
         }
 
-        public void CopyDirectory(string sourceName, string destinationName)
+        public void CopyEntry(string sourcePath, string destPath)
         {
-            int sourceIndex = CurrentDirectory.Search(sourceName);
-            int destinationIndex = CurrentDirectory.Search(destinationName);
+            DirectoryEntry sourceEntry = GetByPath(sourcePath);
+			if (sourceEntry == null) return;
 
-            if (sourceIndex == -1)
+			DirectoryEntry destEntry = GetByPath(destPath);
+            if(destEntry is Directory directory)
             {
-                Console.WriteLine($"Source directory '{sourceName}' not found.");
-                return;
+                sourceEntry.CopyEntry(directory);
+				Console.WriteLine($"Directory '{sourceEntry.FileName}' copied to '{destEntry.FileName}'.");
             }
-
-            if (destinationIndex == -1)
+			else
             {
-                Console.WriteLine($"Destination directory '{destinationName}' not found.");
-                return;
-            }
-
-            Directory sourceEntry = (Directory)CurrentDirectory.DirectoryTable[sourceIndex];
-            Directory destinationEntry = (Directory)CurrentDirectory.DirectoryTable[destinationIndex];
-
-            Directory newEntry = new Directory(sourceEntry.FileName + "_copy", sourceEntry.FileAttribute, 0, sourceEntry.FileSize, destinationEntry);
-            destinationEntry.DirectoryTable.Add(newEntry);
-            destinationEntry.WriteEntryToDisk();
-
-
-            sourceEntry.ReadEntryFromDisk();
-            newEntry.DirectoryTable = sourceEntry.DirectoryTable;
-            newEntry.WriteEntryToDisk();
-
-            Console.WriteLine($"Directory '{sourceName}' copied to '{destinationName}'.");
+				Console.WriteLine($"'{destPath}' is not a directory.");
+			}
         }
+
+        public bool isChildOf(Directory parent, DirectoryEntry child)
+        {
+			if (child == null) return false;
+			if (child == parent) return true;
+			return isChildOf(parent, child.Parent);
+		}
+
+        public void CutEntry(string sourcePath, string destPath)
+        {
+            DirectoryEntry sourceEntry = GetByPath(sourcePath);
+            if (sourceEntry == null) return;
+
+            DirectoryEntry destEntry = GetByPath(destPath);
+
+            if (isChildOf((Directory)sourceEntry, destEntry))
+            {
+				Console.WriteLine("Cannot move a directory into its child.");
+            }
+
+            if(sourcePath == destPath)
+            {
+                Console.WriteLine("Cannot move a directory into itself.");
+				return;
+            }
+
+            if (destEntry is Directory directory)
+            {
+                var temp = sourceEntry.CopyEntry(directory);
+                sourceEntry.DeleteEntryFromDisk();
+				directory.AddChild(temp, false);
+				Console.WriteLine($"Directory '{sourceEntry.FileName}' moved to '{destEntry.FileName}'.");
+			}
+			else
+            {
+				Console.WriteLine($"'{destPath}' is not a directory.");
+			}
+
+        }
+
+
 
         DirectoryEntry GetByPath(string path)
         {
@@ -211,7 +238,6 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
 			foreach (string folder in folders)
             {
-				current.ReadEntryFromDisk();
                 if (folder == ".") continue;
 				else if (folder == "..")
                 {
@@ -248,6 +274,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 
 					current = folderEntry;
 				}
+                current.ReadEntryFromDisk();
 			}
 
 			return current;
@@ -278,9 +305,9 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
             }
             else
             {
-				FileEntry newFile = new FileEntry(fileName, 0, 0, 0, CurrentDirectory);
-				newFile.UpdateFile(content);
+				FileEntry newFile = new FileEntry(fileName, CurrentDirectory);
                 CurrentDirectory.AddChild(newFile);
+				newFile.UpdateFile(content);
 				Console.WriteLine($"File '{fileName}' created successfully.");
 			}
         }
@@ -296,7 +323,7 @@ namespace Simple_Shell_And_File_System__FAT_.Classes
 			}
 			else
             {
-				FileEntry newFile = new FileEntry(fileName, 0, 0, 0, CurrentDirectory);
+				FileEntry newFile = new FileEntry(fileName, CurrentDirectory);
                 CurrentDirectory.AddChild(newFile);
 				Console.WriteLine($"File '{fileName}' created successfully.");
 			}
