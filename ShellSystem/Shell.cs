@@ -31,21 +31,21 @@ namespace ShellX.ShellSystem
                 // Direcotry
                 {"cd", new Command { Description  = "Changes the current directory.", Action = Cd }},
                 {"dir", new Command { Description  = "List the contents of directory.", Action = Dir }},
-                {"copy", new Command { Description  = "Copies one or more files to another location.", Action = Copy }},
-                {"cut", new Command { Description  = "Cut one or more files to another location.", Action = Cut }},
+                {"copy", new Command { Description  = "Copies one or more entry to another location.", Action = Copy }},
+                {"cut", new Command { Description  = "Cut one or more entry to another location.", Action = Cut }},
                 {"md", new Command { Description  = "Creates a directory.", Action = Md }},
                 {"rd", new Command { Description  = "Removes a directory.", Action = Rd }},
                 {"rename", new Command { Description  = "Renames a file.", Action = Rename }},
 
                 // File
-                {"echo", new Command { Description  = "Displays text or variables and can be used to write or append to files", Action = Echo }},
+                {"echo", new Command { Description  = "Displays text or variables, write or append to files", Action = Echo }},
                 {"type", new Command { Description  = "Displays the contents of a text file.", Action = Type }},
                 {"del", new Command { Description  = "Deletes one or more files.", Action = Del }},
                 {"import", new Command { Description  = "Import text file(s) from your computer.", Action = Import }},
                 {"export", new Command { Description  = "Export text file(s) to your computer.", Action = Export }},
 
                 // Debug
-                {"meta", new Command { Description  = "Show meta data of a fiel", Action = ShowMeta }},
+                {"meta", new Command { Description  = "Show meta data of a file", Action = ShowMeta }},
                 {"tree", new Command { Description  = "List the tree of a directory.", Action = Tree }},
                 {"fat", new Command { Description  = "Shows The Fat File System.", Action = ShowFat }},
                 {"mds", new Command { Description  = "Creates n directories.", Action = Mds }},
