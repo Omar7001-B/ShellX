@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Simple_Shell_And_File_System__FAT_;
-using VirtualDisk = Simple_Shell_And_File_System__FAT_.Disk.VirtualDisk;
-using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
-using FileSystem = Simple_Shell_And_File_System__FAT_.ShellSystem.FileSystem;
-using Simple_Shell_And_File_System__FAT_.UnitTesting;
+using ShellX;
+using VirtualDisk = ShellX.Disk.VirtualDisk;
+using FatTable = ShellX.Disk.FatTable;
+using FileSystem = ShellX.ShellSystem.FileSystem;
+using ShellX.UnitTesting;
 
 
-namespace Simple_Shell_And_File_System__FAT_.ShellSystem
+namespace ShellX.ShellSystem
 {
     public class Command
     {

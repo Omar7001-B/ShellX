@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Simple_Shell_And_File_System__FAT_.Classes;
 
-namespace Simple_Shell_And_File_System__FAT_.Entry
+namespace ShellX.Entry
 {
     public class Directory : DirectoryEntry
     {

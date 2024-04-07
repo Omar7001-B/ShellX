@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simple_Shell_And_File_System__FAT_.Disk
+namespace ShellX.Disk
 {
 	public static class VirtualDisk
 	{

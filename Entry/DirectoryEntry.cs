@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VirtualDisk = Simple_Shell_And_File_System__FAT_.Disk.VirtualDisk;
-using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
+using VirtualDisk = ShellX.Disk.VirtualDisk;
+using FatTable = ShellX.Disk.FatTable;
 
 /*
 ------------------------------------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
 ------------------------------------------------------------------------------------------------------------------------
  */
 
-namespace Simple_Shell_And_File_System__FAT_.Entry
+namespace ShellX.Entry
 {
     public class DirectoryEntry
     {

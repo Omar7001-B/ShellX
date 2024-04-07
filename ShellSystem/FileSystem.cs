@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Simple_Shell_And_File_System__FAT_.Disk;
-using Simple_Shell_And_File_System__FAT_.Entry;
-using Directory = Simple_Shell_And_File_System__FAT_.Entry.Directory;
+using ShellX.Disk;
+using ShellX.Entry;
+using Directory = ShellX.Entry.Directory;
 
-namespace Simple_Shell_And_File_System__FAT_.ShellSystem
+namespace ShellX.ShellSystem
 {
     public class FileSystem
     {

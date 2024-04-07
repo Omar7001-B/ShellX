@@ -1,13 +1,12 @@
-﻿using Simple_Shell_And_File_System__FAT_.Classes;
-using Simple_Shell_And_File_System__FAT_.Disk;
-using Simple_Shell_And_File_System__FAT_.UnitTesting;
-using Directory = Simple_Shell_And_File_System__FAT_.Entry.Directory;
-using DirectoryEntry = Simple_Shell_And_File_System__FAT_.Entry.DirectoryEntry;
-using FileEntry = Simple_Shell_And_File_System__FAT_.Entry.FileEntry;
-using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
-using Shell = Simple_Shell_And_File_System__FAT_.ShellSystem.Shell;
+﻿using ShellX.Disk;
+using ShellX.UnitTesting;
+using Directory = ShellX.Entry.Directory;
+using DirectoryEntry = ShellX.Entry.DirectoryEntry;
+using FileEntry = ShellX.Entry.FileEntry;
+using FatTable = ShellX.Disk.FatTable;
+using Shell = ShellX.ShellSystem.Shell;
 
-namespace Simple_Shell_And_File_System__FAT_
+namespace ShellX
 {
     internal class Program
     {

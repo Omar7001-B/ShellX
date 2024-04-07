@@ -1,18 +1,18 @@
-﻿using Simple_Shell_And_File_System__FAT_.Disk;
+﻿using ShellX.Disk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Directory = Simple_Shell_And_File_System__FAT_.Entry.Directory;
-using DirectoryEntry = Simple_Shell_And_File_System__FAT_.Entry.DirectoryEntry;
-using FileEntry = Simple_Shell_And_File_System__FAT_.Entry.FileEntry;
-using FatTable = Simple_Shell_And_File_System__FAT_.Disk.FatTable;
-using VirtualDisk = Simple_Shell_And_File_System__FAT_.Disk.VirtualDisk;
-using Shell = Simple_Shell_And_File_System__FAT_.ShellSystem.Shell;
+using Directory = ShellX.Entry.Directory;
+using DirectoryEntry = ShellX.Entry.DirectoryEntry;
+using FileEntry = ShellX.Entry.FileEntry;
+using FatTable = ShellX.Disk.FatTable;
+using VirtualDisk = ShellX.Disk.VirtualDisk;
+using Shell = ShellX.ShellSystem.Shell;
 
 
-namespace Simple_Shell_And_File_System__FAT_.UnitTesting
+namespace ShellX.UnitTesting
 {
     public class FunctionalityTests
 	{
