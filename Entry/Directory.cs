@@ -16,25 +16,25 @@ namespace ShellX.Entry
 
 
         // ------------ Serialize (Write) Functions ------------
-        public override List<byte> ConvertContentToBytes()
+        public override void ConvertContentToBytes()
         {
-            List<byte> contentBytes = new List<byte>();
+            ContentBytes.Clear();
             foreach (DirectoryEntry entry in DirectoryTable)
-                contentBytes.AddRange(entry.MetaToByteArray());
-            return contentBytes;
+                ContentBytes.AddRange(entry.MetaToByteArray());
         }
 
 
         // ------------ Deserialize (Read) Functions ------------
-        public override void ConvertBytesToContent(List<byte> data)
+        public override void ConvertBytesToContent()
         {
             DirectoryTable.Clear();
-            int entryCount = data.Count / 32;
+            int entryCount = ContentBytes.Count / 32;
             for (int i = 0; i < entryCount; i++)
             {
-                byte[] entryData = data.Skip(i * 32).Take(32).ToArray();
+                byte[] entryData = ContentBytes.Skip(i * 32).Take(32).ToArray();
                 DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
             }
+
 
             // Remove empty entries
             DirectoryTable.RemoveAll(entry => entry.FileName == "###########");
@@ -56,9 +56,8 @@ namespace ShellX.Entry
         {
             ReadEntryFromDisk();
             Directory newDir = new Directory(FileName, newParent);
-            foreach (DirectoryEntry entry in DirectoryTable) entry.CopyEntry(newDir);
-            newDir.WriteEntryToDisk();
-            // newParent.AddChild(newDir, false); // Already in the WriteEntryToDisk
+            foreach (DirectoryEntry entry in DirectoryTable)
+                newDir.AddChild(entry.CopyEntry(newDir));
             return newDir;
         }
 
@@ -80,28 +79,15 @@ namespace ShellX.Entry
 
 
         // ------------ Add/Remove Functions ------------
-        public void AddChild(DirectoryEntry entry, bool overrideExisting = true)
+        public void AddChild(DirectoryEntry entry)
         {
             ReadEntryFromDisk();
             int index = Search(entry);
-            entry.Parent = this;
             if (index == -1) DirectoryTable.Add(entry);
             else
             {
-                if (overrideExisting)
-                {
-                    DirectoryTable[index].DeleteEntryFromDisk();
-                    entry.WriteEntryToDisk();
-                    DirectoryTable.Add(entry);
-                }
-                else
-                {
-                    string name = entry.FileName;
-                    int copyNumber = 1;
-                    while (HasChild(name + $"({copyNumber})")) copyNumber++;
-                    entry.FileName = name + $"({copyNumber})";
-                    DirectoryTable.Add(entry);
-                }
+				DirectoryTable[index] = entry;
+				DirectoryTable.Add(entry);
             }
             WriteEntryToDisk();
         }
