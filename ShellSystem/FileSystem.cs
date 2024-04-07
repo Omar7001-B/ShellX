@@ -301,6 +301,7 @@ namespace ShellX.ShellSystem
 			else
             {
 				FileEntry newFile = new FileEntry(fileName, CurrentDirectory);
+                newFile.UpdateFile(content);
                 CurrentDirectory.AddChild(newFile);
 				Console.WriteLine($"File '{fileName}' created successfully.");
 			}
