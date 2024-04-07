@@ -26,6 +26,7 @@ namespace ShellX.Entry
             ReadEntryFromDisk();
             FileEntry newFile = new FileEntry(FileName, newParent);
             newFile.UpdateFile(Content);
+			// newParent?.AddChild(newFile, false); // Already in the WriteEntryToDisk
             return newFile;
         }
 
