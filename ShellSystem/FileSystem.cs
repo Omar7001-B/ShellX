@@ -25,9 +25,7 @@ namespace ShellX.ShellSystem
 
         public FileSystem()
         {
-            CurrentDirectory = new Directory("root", null);
-            CurrentDirectory.FirstCluster = 5;
-            CurrentDirectory.ReadEntryFromDisk();
+            CurrentDirectory = new Directory(new DirectoryEntry("root", 1, 5, 0, null), null); FatTable.SetValue(5, -1);
             ExportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Exports");
             ImportPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Imports");
             if(!System.IO.Directory.Exists(ExportPath)) System.IO.Directory.CreateDirectory(ExportPath);
@@ -55,17 +53,7 @@ namespace ShellX.ShellSystem
         }
         public void AddFolder(string folderName)
         {
-            if (string.IsNullOrWhiteSpace(folderName))
-            {
-                Console.WriteLine("Folder name cannot be empty.");
-                return;
-            }
-
-            if (CurrentDirectory.Search(folderName) != -1)
-            {
-                Console.WriteLine($"Folder '{DirectoryEntry.FormateFileName(folderName)}' already exists.");
-                return;
-            }
+            if (!ValidateName(folderName, CurrentDirectory)) return;
             CurrentDirectory.AddChild(new Directory(folderName, CurrentDirectory));
             Console.WriteLine($"Folder '{folderName}' created successfully.");
         }
@@ -152,7 +140,6 @@ namespace ShellX.ShellSystem
 
         public void RenameDirectory(string currentName, string newName)
         {
-
             int index = CurrentDirectory.Search(currentName);
             if (index == -1)
             {
@@ -160,16 +147,9 @@ namespace ShellX.ShellSystem
                 return;
             }
 
-            if(CurrentDirectory.Search(newName) != -1)
-            {
-                Console.WriteLine($"Directory '{newName}' already exists.");
-                return;
-            }
+            if(!ValidateName(newName, CurrentDirectory)) return;
 
-
-            Directory entry = (Directory)CurrentDirectory.DirectoryTable[index];
-            entry.UpdateName(newName);
-
+            CurrentDirectory.DirectoryTable[index].SetName(newName);
             Console.WriteLine($"Directory '{currentName}' renamed to '{newName}'.");
         }
 
@@ -186,13 +166,9 @@ namespace ShellX.ShellSystem
 					Console.WriteLine($"Directory '{sourceEntry.FileName}' already exists in '{destEntry.FileName}'.");
 					return;
 				}
-                sourceEntry.CopyEntry(directory);
+                directory.AddChild(sourceEntry.CopyEntry(directory));
 				Console.WriteLine($"Directory '{sourceEntry.FileName}' copied to '{destEntry.FileName}'.");
             }
-			else
-            {
-				Console.WriteLine($"'{destPath}' is not a directory.");
-			}
         }
 
         public bool IsSubdirectory(Directory parent, DirectoryEntry child)
@@ -209,14 +185,21 @@ namespace ShellX.ShellSystem
 
             DirectoryEntry destEntry = GetByPath(destPath);
 
-            if (IsSubdirectory((Directory)sourceEntry, destEntry)) // check if destination is a child of source
+            if (sourceEntry.FileAttribute == 1 && IsSubdirectory((Directory)sourceEntry, destEntry)) // check if destination is a child of source
             {
 				Console.WriteLine("Cannot move a directory into its child.");
                 return;
             }
 
+
             if (destEntry is Directory directory)
             {
+                if(directory.Search(sourceEntry.FileName) != -1)
+                {
+                    Console.WriteLine($"Directory '{sourceEntry.FileName}' already exists in '{destEntry.FileName}'.");
+                    return;
+                }
+
                 sourceEntry.MoveEntry(directory);
 				Console.WriteLine($"Directory '{sourceEntry.FileName}' moved to '{destEntry.FileName}'.");
 			}
@@ -286,10 +269,6 @@ namespace ShellX.ShellSystem
 				CurrentDirectory = folder;
 				Console.WriteLine($"Directory changed to '{folder.FileName}'.");
 			}
-            else
-            {
-                Console.WriteLine($"'{directory}' is not a directory.");
-            }
 		}
 
         public void WriteFile(string fileName, string content)
@@ -414,43 +393,40 @@ namespace ShellX.ShellSystem
 			Console.WriteLine($"Size: {entry.FileSize} bytes");
 			Console.WriteLine($"First Cluster: {FatTable.GetFatValueAsString(entry.FirstCluster)}");
 			Console.WriteLine($"Parent: {entry.Parent?.FileName ?? "root"}");
+            Console.WriteLine($"Reference: {entry.GetHashCode()}");
 		}
 
 
         // Helper Functions
-        public static bool ValidateName(string name)
+        public static bool ValidateName(string name, Directory dir = null)
         {
-			if (string.IsNullOrWhiteSpace(name))
-            {
-				Console.WriteLine("Name cannot be empty.");
-				return false;
-			}
-
-            if(!ValidNameCharacters(name))
-            {
-				return false;
-			}
-
-			if (name.Length > 11)
+            if (name.Length > 11)
             {
                 Console.WriteLine($"Name cannot be longer than 11 characters.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Name cannot be empty.");
+                return false;
+            }
+
+            string illegalChars = "#%&{}\\<>*?/ $!'\":@+`|=";
+            foreach (char c in name) if (illegalChars.Contains(c))
+                {
+                    Console.WriteLine($"Illegal character '{c}' in name.");
+                    return false;
+                }
+
+            if (dir != null && dir.Search(name) != -1)
+            {
+				Console.WriteLine($"Name '{name}' already exists.");
 				return false;
 			}
 
-			return true;
-		}
-
-        public static bool ValidNameCharacters(string name)
-        {
-            string illegalChars = "#%&{}\\<>*?/ $!'\":@+`|=";
-            foreach (char c in name)
-				if (illegalChars.Contains(c))
-                {
-					Console.WriteLine($"Illegal character '{c}' in name.");
-					return false;
-				}
-			return true;
-		}
+            return true;
+        }
     }
 
 }
