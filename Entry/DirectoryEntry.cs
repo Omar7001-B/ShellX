@@ -77,26 +77,20 @@ namespace ShellX.Entry
         // ------ Read Functions --------    
         public void ReadEntryFromDisk()
         {
-            List<byte> entryBytes = ReadBytesFromDisk();
-            ConvertBytesToContent(entryBytes);
-        }
-        public List<byte> ReadBytesFromDisk()
-        {
-            List<byte> entryBytes = new List<byte>();
             int currentCluster = FirstCluster;
+            if (FatTable.GetValue(currentCluster) == 0) return;
 
-            if (currentCluster < 5 || FatTable.GetValue(currentCluster) == 0)
-                return entryBytes;
-
+            List<byte> entryBytes = new List<byte>();
             while (currentCluster != -1)
             {
                 byte[] blockData = VirtualDisk.ReadBlock(currentCluster);
                 entryBytes.AddRange(blockData);
                 currentCluster = FatTable.GetValue(currentCluster);
             }
-
-            return entryBytes;
+            ConvertBytesToContent(entryBytes); // Virtual Function
         }
+
+
         public virtual void ConvertBytesToContent(List<byte> data)
         {
             Console.WriteLine("Bytes To Content from Parent");
@@ -106,16 +100,7 @@ namespace ShellX.Entry
         // ------ Write Functions --------
         public void WriteEntryToDisk()
         {
-            List<byte> directoryBytes = ConvertContentToBytes();
-            WriteBytesToDisk(directoryBytes);
-        }
-        public virtual List<byte> ConvertContentToBytes()
-        {
-            Console.WriteLine("Content To Bytes from Parent");
-            return new List<byte>();
-        }
-        public void WriteBytesToDisk(List<byte> bytesToWrite)
-        {
+            List<byte> bytesToWrite = ConvertContentToBytes(); // Virtual Function
             ClearFat();
             if (bytesToWrite.Count > 0)
             {
@@ -133,8 +118,13 @@ namespace ShellX.Entry
                     VirtualDisk.WriteBlock(blockData, fatIndex[i]);
                 }
             }
-
         }
+        public virtual List<byte> ConvertContentToBytes()
+        {
+            Console.WriteLine("Content To Bytes from Parent");
+            return new List<byte>();
+        }
+
         // ------ Copy Functions --------
         public virtual DirectoryEntry CopyEntry(Directory newParent)
         {
