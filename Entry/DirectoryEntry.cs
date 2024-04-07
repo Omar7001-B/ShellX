@@ -18,13 +18,14 @@ namespace ShellX.Entry
 {
     public class DirectoryEntry
     {
-        public string FileName { get; set; } = ""; // 11 bytes
-        public byte FileAttribute { get; set; } // 1 byte
-        public byte[] FileEmpty { get; set; } = new byte[12]; // 12 bytes
-        public int FirstCluster { get; set; } // 4 bytes
-        public int FileSize { get; set; } // 4 bytes
-        public Directory Parent { get; set; }
+        public string FileName { get; private set; } = ""; // 11 bytes
+        public byte FileAttribute { get; private set; } // 1 byte
+        public byte[] FileEmpty { get; private set; } = new byte[12]; // 12 bytes
+        public int FirstCluster { get; private set; } // 4 bytes
+        public int FileSize { get; private set; } // 4 bytes
+        public Directory Parent { get; private set; }
 
+        private protected List<byte> ContentBytes { get; set; } =  new List<byte>();
 
         public DirectoryEntry() { }
 
@@ -77,21 +78,21 @@ namespace ShellX.Entry
         // ------ Read Functions --------    
         public void ReadEntryFromDisk()
         {
+            ContentBytes.Clear();
             if (FirstCluster == 0 || FatTable.GetValue(FirstCluster) == 0) return;
             int currentCluster = FirstCluster;
 
-            List<byte> entryBytes = new List<byte>();
             while (currentCluster != -1)
             {
                 byte[] blockData = VirtualDisk.ReadBlock(currentCluster);
-                entryBytes.AddRange(blockData);
+                ContentBytes.AddRange(blockData);
                 currentCluster = FatTable.GetValue(currentCluster);
             }
-            ConvertBytesToContent(entryBytes); // Virtual Function
+            ConvertBytesToContent(); // Virtual Function
         }
 
 
-        public virtual void ConvertBytesToContent(List<byte> data)
+        public virtual void ConvertBytesToContent()
         {
             Console.WriteLine("Bytes To Content from Parent");
         }
@@ -100,29 +101,25 @@ namespace ShellX.Entry
         // ------ Write Functions --------
         public void WriteEntryToDisk()
         {
-            List<byte> bytesToWrite = ConvertContentToBytes(); // Virtual Function
-            ClearFat();
-            if (bytesToWrite.Count > 0)
+            ConvertContentToBytes(); // Virtual Function
+            ClearFat(); AllocateFirstCluster();
+            List<int> fatIndex = new List<int>() { FirstCluster };
+            int totalBytes = ContentBytes.Count;
+            int totalBlocks = (totalBytes + 1023) / 1024;
+            for (int i = 0; i < totalBlocks; i++)
             {
-                AllocateFirstCluster();
-                List<int> fatIndex = new List<int>() { FirstCluster };
-                int totalBytes = bytesToWrite.Count;
-                int totalBlocks = (totalBytes + 1023) / 1024;
-                for (int i = 0; i < totalBlocks; i++)
-                {
-                    int blockSize = Math.Min(1024, totalBytes - i * 1024);
-                    byte[] blockData = bytesToWrite.Skip(i * 1024).Take(blockSize).ToArray();
-                    if (i >= fatIndex.Count) fatIndex.Add(FatTable.GetAvailableBlock());
-                    FatTable.SetValue(fatIndex[i], -1);
-                    if (i > 0) FatTable.SetValue(fatIndex[i - 1], fatIndex[i]);
-                    VirtualDisk.WriteBlock(blockData, fatIndex[i]);
-                }
+                int blockSize = Math.Min(1024, totalBytes - i * 1024);
+                byte[] blockData = ContentBytes.Skip(i * 1024).Take(blockSize).ToArray();
+                if (i >= fatIndex.Count) fatIndex.Add(FatTable.GetAvailableBlock());
+                FatTable.SetValue(fatIndex[i], -1);
+                if (i > 0) FatTable.SetValue(fatIndex[i - 1], fatIndex[i]);
+                VirtualDisk.WriteBlock(blockData, fatIndex[i]);
             }
+
         }
-        public virtual List<byte> ConvertContentToBytes()
+        public virtual void ConvertContentToBytes()
         {
             Console.WriteLine("Content To Bytes from Parent");
-            return new List<byte>();
         }
 
         // ------ Copy Functions --------
@@ -134,16 +131,26 @@ namespace ShellX.Entry
         // ------ Move Functions --------
         public virtual void MoveEntry(Directory newParent)
         {
-			Parent?.RemoveChild(this);
+            int index = Parent.Search(this);
+            if (index != -1)
+            {
+				Parent.DirectoryTable.RemoveAt(index);
+				Parent.WriteEntryToDisk();
+            }
+
 			Parent = newParent;
-			Parent?.AddChild(this, false);
+            newParent.DirectoryTable.Add(this);
+			newParent.WriteEntryToDisk();
 		}
 
         // ------ Delete Functions --------
         public virtual void DeleteEntryFromDisk()
         {
             ClearFat();
-            Parent?.RemoveChild(this);
+            int index = Parent.Search(this);
+            if (index == -1) return;
+            Parent.DirectoryTable.RemoveAt(index);
+            Parent.WriteEntryToDisk();
         }
 
         // ------ General Functions --------
@@ -159,21 +166,38 @@ namespace ShellX.Entry
             }
         }
 
-        public void AllocateFirstCluster()
+        private void AllocateFirstCluster()
         {
-            if (FirstCluster == 0)
+            if (ContentBytes.Count > 0)
+				 SetFirstCluster((FirstCluster == 0 ? FatTable.GetAvailableBlock() : FirstCluster));
+            else
+                SetFirstCluster(0);
+
+        }
+        public void SetFirstCluster(int cluster)
+        {
+            FirstCluster = cluster;
+            if(FirstCluster != 0) FatTable.SetValue(FirstCluster, -1);
+
+            if(Parent == null) return;
+
+			int index = Parent.Search(this);
+			if (index == -1)
             {
-                FirstCluster = FatTable.GetAvailableBlock();
-                FatTable.SetValue(FirstCluster, -1);
-				Parent?.AddChild(this);
-				Parent?.WriteEntryToDisk();
+                 // Console.WriteLine($"Entry {FileName} is not found in Parent {Parent.FileName}."); // Debugging
+                return;
             }
+			Parent.DirectoryTable[index].FirstCluster = FirstCluster;
+			Parent?.WriteEntryToDisk();
         }
 
-        public virtual void UpdateName(string name)
+        public virtual void SetName(string name)
         {
-            FileName = FormateFileName(name, FileAttribute);
-            Parent?.WriteEntryToDisk();
+            int index = Parent.Search(this);
+            if (index == -1) return;
+            Parent.DirectoryTable[index].FileName = name; 
+            this.FileName = name;
+			Parent?.WriteEntryToDisk();
         }
 
         public static string FormateFileName(string name, int attribute = 1)
