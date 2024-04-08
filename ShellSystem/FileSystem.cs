@@ -269,6 +269,10 @@ namespace ShellX.ShellSystem
 				CurrentDirectory = folder;
 				Console.WriteLine($"Directory changed to '{folder.FileName}'.");
 			}
+            else
+            {
+				Console.WriteLine($"'{directory}' is not a directory.");
+            }
 		}
 
         public void WriteFile(string fileName, string content)
