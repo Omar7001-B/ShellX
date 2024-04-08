@@ -32,6 +32,7 @@ namespace ShellX.Entry
             for (int i = 0; i < entryCount; i++)
             {
                 byte[] entryData = ContentBytes.Skip(i * 32).Take(32).ToArray();
+                if (entryData[0] == '#') break;
                 DirectoryTable.Add(GetActualType(new DirectoryEntry(entryData)));
             }
 
