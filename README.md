@@ -1,33 +1,36 @@
 <p align="center">
-
+  <img src="https://i.imgur.com/2CX2Qpb.jpg"/>
 </p>
+
 <p align="center">
-  <img src="https://static.vecteezy.com/system/resources/previews/028/033/738/original/command-prompt-icon-free-vector.jpg"/>
     <h1 align="center">SIMPLE-SHELL-AND-FILE-SYSTEM-FAT</h1>
 </p>
 <p align="center">
-    <img src="https://img.shields.io/github/last-commit/Omar7001-B/Simple-Shell-And-File-System-FAT?style=flat&logo=git&logoColor=white&color=0080ff" alt="last-commit">
-    <img src="https://img.shields.io/github/languages/top/Omar7001-B/Simple-Shell-And-File-System-FAT?style=flat&color=0080ff" alt="repo-top-language">
-    <img src="https://img.shields.io/github/languages/count/Omar7001-B/Simple-Shell-And-File-System-FAT?style=flat&color=0080ff" alt="repo-language-count">
+    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=flat&color=0080ff" alt="version">
+    <img src="https://img.shields.io/github/last-commit/Omar7001-B/ShellX?style=flat&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+    <img src="https://img.shields.io/github/languages/top/Omar7001-B/ShellX?style=flat&color=0080ff" alt="repo-top-language">
+    <img src="https://img.shields.io/github/stars/Omar7001-B/ShellX?style=flat&color=0080ff" alt="stars">
+    <img src="https://img.shields.io/github/forks/Omar7001-B/ShellX?style=flat&color=0080ff" alt="forks">
+    <img src="https://img.shields.io/github/watchers/Omar7001-B/ShellX?style=flat&color=0080ff" alt="watchers">
 </p>
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Overview](#overview) 📜
+- [Installation](#installation) 🔧
+- [Usage](#usage) ⚙️
 - [Commands](#commands) 💻
   - [General](#general) ℹ️
   - [Directory](#directory) 📁
   - [File](#file) 📄
   - [Debug](#debug) 🛠️
-- [Repo Structure](#repo-structure) 📁
+- [Repo Structure](#repo-structure) 🏗️
 - [Modules](#modules) 🧩
   - [ShellSystem](#shellsystem) 💼
   - [Disk](#disk) 💾
   - [Entry](#entry) 📝
 - [Lessons Learned](#lessons-learned) 📚
-- [Demo Video](#demo-video) 📹
+- [Demo Video](#demo-video) 🎥
 - [Contribution](#contribution-) 🤝
 
 
@@ -39,12 +42,12 @@ Simple Shell and File System Program offers efficient file system management and
 
 1. Clone the repository:
    ~~~bash
-   git clone https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT.git
+   git clone https://github.com/Omar7001-B/ShellX.git
    ~~~
    
 2. Navigate to the project directory:
    ~~~bash
-   cd Simple-Shell-And-File-System-FAT
+   cd ShellX
    ~~~
 
 3. Compile and run the program:
@@ -123,52 +126,42 @@ Simple Shell and File System Program offers efficient file system management and
     └── 📁 Debug
         └── 📁 net6.0
             ├─ Disk.txt
-            ├─ Exports
-            └─ Imports
+            ├─ 📁Exports
+            └─ 📁Imports
 ~~~
 
-## 🧩 Modules
+## Modules
 
-### ShellSystem
-
-| File                                                                                                                  | Summary                                               | Documentation                                                  |
-| ---                                                                                                                   | ---                                                   | ---                                                             |
-| [FileSystem.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/ShellSystem/FileSystem.cs) | Handles file system operations.                        | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/FileSystem.md)                     |
-| [Shell.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/ShellSystem/Shell.cs)           | Implements the shell interface.                        | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/Shell.md)                           |
-
-
-### Disk
-
-| File                                                                                                             | Summary                                         | Documentation                                            |
-| ---                                                                                                              | ---                                             | ---                                                       |
-| [VirtualDisk.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Disk/VirtualDisk.cs) | Manages virtual disk operations.               | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/VirtualDisk.md)                     |
-| [FatTable.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Disk/FatTable.cs)       | Implements the FAT file system.                 | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/FatTable.md)   
-
-#### Entry
-
-| File                                                                                                                    | Summary                                             | Documentation                                                |
-| ---                                                                                                                     | ---                                                 | ---                                                           |
-| [Directory.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Entry/Directory.cs)           | Handles directory operations.                      | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/Directory.md)                         |
-| [DirectoryEntry.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Entry/DirectoryEntry.cs) | Represents directory entries.                      | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/DirectoryEntry.md)                    |
-| [FileEntry.cs](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Entry/FileEntry.cs)           | Manages file entries.                              | [Documentation](https://github.com/Omar7001-B/Simple-Shell-And-File-System-FAT/blob/master/Docs/FileEntry.md)                        |
+| Module                                                                                                                 | Summary                          | Documentation                                                                                       |
+| ---------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [ShellSystem](https://github.com/Omar7001-B/ShellX/tree/master/ShellSystem)                  | Handles shell and file system operations. | [Documentation](https://github.com/Omar7001-B/ShellX/blob/master/ShellSystem/) |
+| [Disk](https://github.com/Omar7001-B/ShellX/tree/master/Disk)                                | Manages virtual disk and FAT operations.  | [Documentation](https://github.com/Omar7001-B/ShellX/blob/master/Disk/) |
+| [Entry](https://github.com/Omar7001-B/ShellX/tree/master/Entry)                              | Handles directory and file entries.         | [Documentation](https://github.com/Omar7001-B/ShellX/blob/master/Entry/) |
 
 
 
 
 
 ## Lessons Learned
-- Object-oriented programming
-- File system management
-- File I/O operations
+- Object-oriented programming (OOP)
+  - Constructors
+  - Inheritance
+  - Virtual Classes
+  - Override
+  - Overload
+- Recursive algorithms (e.g., BFS)
 - Data structures (e.g., dictionaries, lists)
-- Software testing (unit testing)
-- Directory and file manipulation
+- File system management
 - String manipulation
-- Recursive algorithms
+- File I/O operations
+- Directory and file manipulation
+- Software testing (unit testing)
 
 ## Demo Video
 
-[Embed or link to the demo video]
+https://github.com/Omar7001-B/ShellX/assets/115028809/54d1e2e2-63f5-4bbb-92bd-08e9aeae2d55
+
+
 
 # Contribution 🤝
 

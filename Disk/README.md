@@ -1,12 +1,20 @@
-## Class Documentation: `FatTable`
+## Class Documentation: `VirtualDisk` [Source Code](./Disk/VirtualDisk.cs)
+`VirtualDisk` is a static class representing the virtual disk in the file system. It provides methods for initializing, reading, and writing disk blocks.
 
-### Namespace
-`ShellX.Disk`
+### Properties
+- **DiskFileName**: The name of the disk file.
 
-### Description
+### Methods
+- **Initialize()**: Initializes the virtual disk if it does not exist, including creating the disk file and initializing the FAT.
+- **WriteBlock(byte[] data, int index)**: Writes data to a block at the specified index on the disk.
+- **ReadBlock(int index)**: Reads data from a block at the specified index on the disk.
+
+### Notes
+- The `VirtualDisk` class provides an abstraction for disk operations, such as reading and writing blocks.
+- It interacts with the `FatTable` class to manage disk block allocation and deallocation.
+
+## Class Documentation: `FatTable` [Source Code](./Disk/FatTable.cs)
 `FatTable` is a static class representing the File Allocation Table (FAT) in the file system. It manages the allocation and deallocation of disk blocks, as well as reading and writing the FAT to disk.
-
-### [Source Code](./Disk/FatTable.cs)
 
 ### Methods
 - **Initialize()**: Initializes the FAT with default values and writes it to disk.
